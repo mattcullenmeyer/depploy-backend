@@ -2,9 +2,36 @@ version: "3.9"
 
 services:
   app:
+    container_name: app
     build:
-      dockerfile: Dockerfile
       context: .
+      dockerfile: Dockerfile
     ports:
-      - "8080:8080"
+      - 8080:8080
     restart: unless-stopped
+    depends_on:
+      - dynamodb
+    volumes:
+      - .:/main
+    networks:
+      - depploy
+
+  dynamodb:
+    image: amazon/dynamodb-local
+    container_name: dynamodb
+    # hostname: dynamodb
+    # command: -jar DynamoDBLocal.jar -sharedDb -dbPath /home/dynamodblocal/data/
+    restart: always
+    # volumes:
+    #   - ./dynamodb_data:/home/dynamodblocal/data
+    ports:
+      - 8000:8000
+    networks:
+      - depploy
+
+# volumes:
+#   dynamodb_data:
+
+networks:
+  depploy:
+    driver: bridge
