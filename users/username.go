@@ -1,4 +1,4 @@
-package routes
+package users
 
 import (
 	"fmt"
@@ -17,7 +17,7 @@ type User struct {
 	Username string
 }
 
-func username(c *gin.Context) {
+func Profile(c *gin.Context) {
 	username := c.Params.ByName("username")
 	fmt.Println(username)
 
@@ -28,15 +28,16 @@ func username(c *gin.Context) {
     TableName: aws.String("depploy-users-dev"),
 		Limit:     aws.Int64(1),
     KeyConditions: map[string]*dynamodb.Condition{
-			"UserId": {
+			"Username": {
 				ComparisonOperator: aws.String("EQ"),
 				AttributeValueList: []*dynamodb.AttributeValue{
 					{
-						S: aws.String("1"),
+						S: aws.String(username),
 					},
 				},
 			},
 		},
+		IndexName: aws.String("Username-index"),
 	})
 	if err != nil {
     log.Fatalf("Got error calling query: %s", err)
@@ -54,17 +55,5 @@ func username(c *gin.Context) {
 
 	user := users[0]
 
-	c.JSON(http.StatusOK, user.Username)
-}
-
-func RegisterRoutes() *gin.Engine {
-
-	router := gin.Default()
-
-	user := router.Group("/user")
-	{
-		user.GET("/:username", username)
-	}
-
-	return router
+	c.JSON(http.StatusOK, user.UserId)
 }
