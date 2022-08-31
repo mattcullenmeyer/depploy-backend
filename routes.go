@@ -5,7 +5,7 @@ import (
 	"github.com/mattcullenmeyer/depploy-backend/users"
 )
 
-func RegisterRoutes() *gin.Engine {
+func registerRoutes() *gin.Engine {
 
 	router := gin.Default()
 

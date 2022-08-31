@@ -1,7 +1,7 @@
 package main
 
 func main() {
-	router := RegisterRoutes()
+	router := registerRoutes()
 
 	router.Run(":8080")
 }
