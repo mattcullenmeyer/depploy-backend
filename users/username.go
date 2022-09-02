@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -13,21 +14,22 @@ import (
 )
 
 type User struct {
-	UserId string
+	UserId   string
 	Username string
 }
 
 func Profile(c *gin.Context) {
 	username := c.Params.ByName("username")
-	fmt.Println(username)
+
+	tableName := os.Getenv("DYNAMODB_TABLE_NAME")
 
 	sess := session.Must(session.NewSession())
 	svc := dynamodb.New(sess)
 
 	result, err := svc.Query(&dynamodb.QueryInput{
-    TableName: aws.String("depploy-users-dev"),
+		TableName: aws.String(tableName),
 		Limit:     aws.Int64(1),
-    KeyConditions: map[string]*dynamodb.Condition{
+		KeyConditions: map[string]*dynamodb.Condition{
 			"Username": {
 				ComparisonOperator: aws.String("EQ"),
 				AttributeValueList: []*dynamodb.AttributeValue{
@@ -40,13 +42,13 @@ func Profile(c *gin.Context) {
 		IndexName: aws.String("Username-index"),
 	})
 	if err != nil {
-    log.Fatalf("Got error calling query: %s", err)
+		log.Fatalf("Got error calling query: %s", err)
 	}
 
 	users := []User{}
 	err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &users)
 	if err != nil {
-			panic(fmt.Sprintf("Failed to unmarshal Record, %v", err))
+		panic(fmt.Sprintf("Failed to unmarshal Record, %v", err))
 	}
 
 	if len(users) == 0 {
