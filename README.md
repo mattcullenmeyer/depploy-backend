@@ -27,4 +27,8 @@ $ aws dynamodb \
 
 `$ go mod init github.com/mattcullenmeyer/depploy-backend`
 
-https://www.youtube.com/playlist?list=PL5dTjWUk_cPbe1PZvwMIufb2fdwzVpM3O
+`$ export AWS_REGION=us-east-1`
+`$ export DYNAMODB_TABLE_NAME=depploy-users-dev`
+
+`GOOS=linux go build -o bin/main .` this (add architecture GOARCH?)
+`zip bin/main.zip bin/main`
