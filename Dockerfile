@@ -9,8 +9,8 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o main .
+RUN GOOS=linux go build -o bin/main ./cmd/local
 
 EXPOSE 8080
 
-CMD ["./main"]
+CMD ["./bin/main"]

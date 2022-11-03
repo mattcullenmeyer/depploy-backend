@@ -3,26 +3,19 @@ package main
 import (
 	"context"
 
-	// "fmt"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	ginadapter "github.com/awslabs/aws-lambda-go-api-proxy/gin"
+	"github.com/mattcullenmeyer/depploy-backend/router"
 )
-
-// func runRouter() {
-// 	router := registerRoutes()
-
-// 	router.Run(":8080")
-// }
 
 // https://github.com/awslabs/aws-lambda-go-api-proxy#gin
 func LambdaHandler(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	ginLambda := registerRoutes()
-
+	router := router.RegisterRoutes()
+	ginLambda := ginadapter.New(router)
 	return ginLambda.ProxyWithContext(ctx, req)
 }
 
 func main() {
 	lambda.Start(LambdaHandler)
-	// fmt.Println(runRouter())
-	// runRouter()
 }

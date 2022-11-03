@@ -14,7 +14,6 @@ import (
 )
 
 type User struct {
-	UserId   string
 	Username string
 }
 
@@ -22,40 +21,36 @@ func Profile(c *gin.Context) {
 	username := c.Params.ByName("username")
 
 	tableName := os.Getenv("DYNAMODB_TABLE_NAME")
+	endpoint := os.Getenv("DYNAMODB_ENDPOINT")
 
-	sess := session.Must(session.NewSession())
+	sess := session.Must(session.NewSession(&aws.Config{
+		Endpoint: aws.String(endpoint), // uses default generated endpoint if an empty string
+	}))
 	svc := dynamodb.New(sess)
 
-	result, err := svc.Query(&dynamodb.QueryInput{
+	result, err := svc.GetItem(&dynamodb.GetItemInput{
 		TableName: aws.String(tableName),
-		Limit:     aws.Int64(1),
-		KeyConditions: map[string]*dynamodb.Condition{
+		Key: map[string]*dynamodb.AttributeValue{
 			"Username": {
-				ComparisonOperator: aws.String("EQ"),
-				AttributeValueList: []*dynamodb.AttributeValue{
-					{
-						S: aws.String(username),
-					},
-				},
+				S: aws.String(username),
 			},
 		},
-		IndexName: aws.String("Username-index"),
 	})
 	if err != nil {
-		log.Fatalf("Got error calling query: %s", err)
+		log.Fatal("Got error calling GetItem: %s", err)
 	}
 
-	users := []User{}
-	err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &users)
+	if result.Item == nil {
+		c.JSON(http.StatusNotFound, "user not found")
+		return
+	}
+
+	user := User{}
+
+	err = dynamodbattribute.UnmarshalMap(result.Item, &user)
 	if err != nil {
 		panic(fmt.Sprintf("Failed to unmarshal Record, %v", err))
 	}
 
-	if len(users) == 0 {
-		c.AbortWithStatus((http.StatusNotFound))
-	}
-
-	user := users[0]
-
-	c.JSON(http.StatusOK, user.UserId)
+	c.JSON(http.StatusOK, user.Username)
 }
