@@ -1,34 +1,94 @@
 ## Run Locally
 
-`$ go run main.go`  
+`go run main.go`  
+OR  
+`go run .` need to do this one if more than one file (package main) in the same directory (eg only running main.go will ignore routes.go)
+
 http://localhost:8080/
 
-## Run Docker
+## Run Dockerfile
 
-`$ docker compose up -d`  
-`$ docker compose down`
+`docker build -t depploy-image .`  
+`docker image ls` list all images  
+`docker run -p 8080:8080 --name depploy-container depploy-image`  
+`docker ps` list all containers  
+`docker rm depploy-container -f`
+`docker image rm {image-id}`
 
-Create a table
+## Run Docker Compose (this one!!!)
+
+`docker compose build`  
+`docker compose up`  
+`docker compose down`
+
+Ensure docker has permissions to access dynamodb volume  
+https://stackoverflow.com/questions/45850688/unable-to-open-local-dynamodb-database-file-after-power-outage  
+`sudo chmod 777 ./docker/dynamodb`
+
+## DynamoDB Table
 
 ```
-$ aws dynamodb \
-  --endpoint-url http://localhost:8000 create-table \
+aws dynamodb create-table \
   --table-name user \
-  --attribute-definitions AttributeName=name,AttributeType=S \
-  --key-schema AttributeName=name,KeyType=HASH \
+  --endpoint-url http://localhost:8000 \
+  --attribute-definitions \
+    AttributeName=Username,AttributeType=S \
+  --key-schema \
+    AttributeName=Username,KeyType=HASH \
   --region us-east-1 \
-  --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5
+  --provisioned-throughput \
+    ReadCapacityUnits=1,WriteCapacityUnits=1
 ```
 
-`$ aws dynamodb put-item --endpoint-url http://localhost:8000 --table-name user --item '{"name": {"S": "matt"}}' --region us-east-1`  
-`$ aws dynamodb get-item --endpoint-url http://localhost:8000 --table-name user --key '{"name": {"S": "matt"}}' --region us-east-1`
+```
+aws dynamodb delete-table \
+  --table-name user
+  --endpoint-url http://localhost:8000
+  --region us-east-1
+```
+
+```
+aws dynamodb put-item \
+  --table-name user \
+  --endpoint-url http://localhost:8000 \
+  --item '{"Username": {"S": "matt"}}' \
+  --region us-east-1
+```
+
+```
+aws dynamodb get-item \
+  --table-name user \
+  --endpoint-url http://localhost:8000 \
+  --key '{"Username": {"S": "matt"}}' \
+  --region us-east-1
+```
 
 ## Initialize
 
-`$ go mod init github.com/mattcullenmeyer/depploy-backend`
+`go mod init github.com/mattcullenmeyer/depploy-backend`
 
-`$ export AWS_REGION=us-east-1`
-`$ export DYNAMODB_TABLE_NAME=depploy-users-dev`
+## Environment Variables
 
-`GOOS=linux go build -o bin/main .` this (add architecture GOARCH?)
-`zip bin/main.zip bin/main`
+Set environment variables
+
+```
+export AWS_REGION=us-east-1
+export DYNAMODB_TABLE_NAME=user
+export DYNAMODB_ENDPOINT=http://localhost:8000
+```
+
+Output environment variables
+
+```
+echo $AWS_REGION
+echo $DYNAMODB_TABLE_NAME
+echo $DYNAMODB_ENDPOINT
+```
+
+## Lambda Deployment
+
+`GOOS=linux go build -o bin/main ./cmd/lambda`
+
+The executable must be in the root of the zip file — not in a folder within the zip file.  
+Use the -j flag to junk directory names, otherwise lambda won't work.  
+`zip -j bin/main.zip bin/main`

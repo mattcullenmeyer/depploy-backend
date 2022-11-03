@@ -1,18 +1,23 @@
-package main
+package router
 
 import (
-	ginadapter "github.com/awslabs/aws-lambda-go-api-proxy/gin"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/mattcullenmeyer/depploy-backend/users"
 )
 
-func registerRoutes() *ginadapter.GinLambda {
+func RegisterRoutes() *gin.Engine {
 	router := gin.Default()
+
+	router.GET("/test", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"message": "success"})
+	})
 
 	user := router.Group("/user")
 	{
 		user.GET("/:username", users.Profile)
 	}
 
-	return ginadapter.New(router)
+	return router
 }

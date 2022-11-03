@@ -32,3 +32,6 @@ go.work
 
 # production
 /bin
+
+# docker volumes
+/docker
