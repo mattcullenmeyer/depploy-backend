@@ -1,7 +1,9 @@
-name: Pull Request Actions
+name: Merge with Main Branch Actions
 
 on:
-  pull_request:
+  push:
+    branches:
+      - main
 
 jobs:
   deploy:

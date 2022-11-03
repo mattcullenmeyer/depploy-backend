@@ -87,8 +87,7 @@ echo $DYNAMODB_ENDPOINT
 
 ## Lambda Deployment
 
-`GOOS=linux go build -o bin/main ./cmd/lambda`
-
 The executable must be in the root of the zip file — not in a folder within the zip file.  
-Use the -j flag to junk directory names, otherwise lambda won't work.  
-`zip -j bin/main.zip bin/main`
+Use the -j flag to junk directory names, otherwise lambda won't work.
+
+`GOOS=linux go build -o bin/main ./cmd/lambda && zip -j bin/main.zip bin/main`

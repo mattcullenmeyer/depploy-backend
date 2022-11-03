@@ -11,7 +11,7 @@ func RegisterRoutes() *gin.Engine {
 	router := gin.Default()
 
 	router.GET("/test", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"message": "new deployment"})
+		c.JSON(http.StatusOK, gin.H{"message": "success"})
 	})
 
 	user := router.Group("/user")
