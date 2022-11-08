@@ -37,7 +37,7 @@ func Profile(c *gin.Context) {
 		},
 	})
 	if err != nil {
-		log.Fatal("Got error calling GetItem: %s", err)
+		log.Fatal(err)
 	}
 
 	if result.Item == nil {
