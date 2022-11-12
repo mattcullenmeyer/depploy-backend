@@ -1,3 +1,24 @@
+## Initialize
+
+TODO: Put these into a Makefile or bash script
+
+`touch .git/hooks/pre-push`
+
+```sh
+#!/bin/sh
+
+go test ./...
+```
+
+`chmod +x .git/hooks/pre-push`
+
+```
+sudo apt update
+sudo apt install build-essential
+sudo snap install golangci-lint
+golangci-lint version
+```
+
 ## Run Locally
 
 `go run main.go`  
@@ -91,3 +112,7 @@ The executable must be in the root of the zip file — not in a folder within th
 Use the -j flag to junk directory names, otherwise lambda won't work.
 
 `GOOS=linux go build -o bin/main ./cmd/lambda && zip -j bin/main.zip bin/main`
+
+## Testing
+
+`go test ./...`

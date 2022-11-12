@@ -1,13 +1,19 @@
 package main
 
 import (
+	"log"
+
 	"github.com/mattcullenmeyer/depploy-backend/router"
 )
 
 func runRouter() {
 	router := router.RegisterRoutes()
 
-	router.Run(":8080")
+	err := router.Run(":8080")
+
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func main() {
