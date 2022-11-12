@@ -7,7 +7,11 @@ import (
 func runRouter() {
 	router := router.RegisterRoutes()
 
-	router.Run(":8080")
+	err := router.Run(":8080")
+
+	if err != nil {
+		// do something here
+	}
 }
 
 func main() {
