@@ -1,3 +1,17 @@
+## Initialize
+
+TODO: Put these into a Makefile or bash script
+
+`touch .git/hooks/pre-push`
+
+```sh
+#!/bin/sh
+
+go test ./...
+```
+
+`sudo snap install golangci-lint`
+
 ## Run Locally
 
 `go run main.go`  
