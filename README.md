@@ -10,6 +10,8 @@ TODO: Put these into a Makefile or bash script
 go test ./...
 ```
 
+`chmod +x .git/hooks/pre-push`
+
 ```
 sudo apt update
 sudo apt install build-essential
