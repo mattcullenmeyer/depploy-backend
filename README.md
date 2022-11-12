@@ -10,7 +10,12 @@ TODO: Put these into a Makefile or bash script
 go test ./...
 ```
 
-`sudo snap install golangci-lint`
+```
+sudo apt update
+sudo apt install build-essential
+sudo snap install golangci-lint
+golangci-lint version
+```
 
 ## Run Locally
 
