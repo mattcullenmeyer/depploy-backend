@@ -1,10 +1,9 @@
-package router
+package routes
 
 import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/mattcullenmeyer/depploy-backend/users"
 )
 
 func RegisterRoutes() *gin.Engine {
@@ -14,10 +13,8 @@ func RegisterRoutes() *gin.Engine {
 		c.JSON(http.StatusOK, gin.H{"message": "success"})
 	})
 
-	user := router.Group("/user")
-	{
-		user.GET("/:username", users.Profile)
-	}
+	AuthRoute(router)
+	UserRoute(router)
 
 	return router
 }

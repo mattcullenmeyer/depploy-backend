@@ -3,11 +3,11 @@ package main
 import (
 	"log"
 
-	"github.com/mattcullenmeyer/depploy-backend/router"
+	"github.com/mattcullenmeyer/depploy-backend/pkg/routes"
 )
 
 func runRouter() {
-	router := router.RegisterRoutes()
+	router := routes.RegisterRoutes()
 
 	err := router.Run(":8080")
 

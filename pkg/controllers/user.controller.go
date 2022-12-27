@@ -1,4 +1,4 @@
-package users
+package controllers
 
 import (
 	"fmt"
@@ -17,7 +17,7 @@ type User struct {
 	Username string
 }
 
-func Profile(c *gin.Context) {
+func Username(c *gin.Context) {
 	username := c.Params.ByName("username")
 
 	tableName := os.Getenv("DYNAMODB_TABLE_NAME")
