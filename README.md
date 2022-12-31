@@ -98,9 +98,9 @@ aws dynamodb put-item \
 
 ```
 aws dynamodb get-item \
-  --table-name user \
+  --table-name Depploy \
   --endpoint-url http://localhost:8000 \
-  --key '{"Username": {"S": "matt"}}' \
+  --key '{ "PK": {"S": "ACCOUNT#test20"}, "SK": {"S": "ACCOUNT#test20"}}' \
   --region us-east-1
 ```
 

@@ -13,8 +13,8 @@ func RegisterRoutes() *gin.Engine {
 		c.JSON(http.StatusOK, gin.H{"message": "success"})
 	})
 
-	AuthRoute(router)
-	UserRoute(router)
+	AuthRoute(router.Group("/auth"))
+	UserRoute(router.Group("/user"))
 
 	return router
 }

@@ -5,8 +5,6 @@ import (
 	"github.com/mattcullenmeyer/depploy-backend/pkg/controllers"
 )
 
-func UserRoute(router *gin.Engine) {
-	user := router.Group("/user")
-
-	user.GET("/:username", controllers.Username)
+func UserRoute(router *gin.RouterGroup) {
+	router.GET("/:username", controllers.Username)
 }
