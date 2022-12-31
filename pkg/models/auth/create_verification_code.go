@@ -24,7 +24,7 @@ type VerificationCodeAttributes struct {
 	Username   string `dynamodbav:"Username"`
 	Email      string `dynamodbav:"Email"`
 	Expiration string `dynamodbav:"Expiration"`
-	TTL        int64  `dynamodbav:"TTL"`
+	TTL        int64  `dynamodbav:"TimeToLive"`
 }
 
 func CreateVerificationCode(args CreateVerificationCodeParams) error {
