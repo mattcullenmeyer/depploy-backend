@@ -35,12 +35,24 @@ func LoginUser(c *gin.Context) {
 		return
 	}
 
+	generateTokenArgs := utils.GenerateTokenParams{
+		Username: username,
+		Account:  username,
+	}
+
 	// Generate JWT
-	token, err := utils.GenerateToken(username)
+	token, err := utils.GenerateToken(generateTokenArgs)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"status": "success", "token": token})
+	// Generate refresh JWT
+	refresh, err := utils.GenerateRefreshToken(generateTokenArgs)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"status": "success", "token": token, "refresh_token": refresh})
 }

@@ -6,7 +6,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	authModel "github.com/mattcullenmeyer/depploy-backend/pkg/models/auth"
-	"github.com/mattcullenmeyer/depploy-backend/pkg/utils"
 	"github.com/pquerna/otp/totp"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -34,13 +33,6 @@ func RegisterUser(c *gin.Context) {
 	if err != nil {
 		log.Println(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Password encryption failed"})
-		return
-	}
-
-	token, err := utils.GenerateToken(email)
-	if err != nil {
-		log.Println(err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Token generation failed"})
 		return
 	}
 
@@ -80,5 +72,5 @@ func RegisterUser(c *gin.Context) {
 
 	// Send verification email
 
-	c.JSON(http.StatusCreated, gin.H{"username": username, "password": password, "hashedPassword": hashedPassword, "token": token, "otp": key.Secret()})
+	c.JSON(http.StatusCreated, gin.H{"username": username, "otp": key.Secret()})
 }

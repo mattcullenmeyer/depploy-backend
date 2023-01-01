@@ -54,3 +54,10 @@ func Username(c *gin.Context) {
 
 	c.JSON(http.StatusOK, user.Username)
 }
+
+func GetUser(c *gin.Context) {
+	username := c.MustGet("username")
+	account := c.MustGet("account")
+
+	c.JSON(http.StatusOK, gin.H{"account": account, "username": username})
+}
