@@ -6,8 +6,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	authModel "github.com/mattcullenmeyer/depploy-backend/pkg/models/auth"
+	"github.com/mattcullenmeyer/depploy-backend/pkg/utils"
 	"github.com/pquerna/otp/totp"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type RegisterUserPayload struct {
@@ -29,7 +29,7 @@ func RegisterUser(c *gin.Context) {
 
 	username, email, password := payload.Username, payload.Email, payload.Password
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	hashedPassword, err := utils.HashPassword(password)
 	if err != nil {
 		log.Println(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Password encryption failed"})
@@ -39,7 +39,7 @@ func RegisterUser(c *gin.Context) {
 	createUserArgs := authModel.CreateUserParams{
 		Username: username,
 		Email:    email,
-		Password: string(hashedPassword),
+		Password: hashedPassword,
 	}
 
 	if err := authModel.CreateUser(createUserArgs); err != nil {
@@ -60,7 +60,7 @@ func RegisterUser(c *gin.Context) {
 	}
 
 	args := authModel.CreateVerificationCodeParams{
-		Totp:     key.Secret(),
+		Otp:      key.Secret(),
 		Username: username,
 		Email:    email,
 	}

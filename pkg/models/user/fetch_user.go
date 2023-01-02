@@ -31,7 +31,6 @@ func FetchUser(username string) (FetchUserResult, error) {
 	svc := utils.DynamodbClient()
 	tableName := os.Getenv("DYNAMODB_TABLE_NAME")
 
-	// Return empty result if error
 	emptResult := FetchUserResult{}
 
 	key := fmt.Sprintf("ACCOUNT#%s", strings.ToLower(username))

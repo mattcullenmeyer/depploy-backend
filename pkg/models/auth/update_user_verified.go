@@ -2,19 +2,19 @@ package authModel
 
 import (
 	"fmt"
-	"log"
 	"os"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/mattcullenmeyer/depploy-backend/pkg/utils"
 )
 
-func UpdateUserVerification(username string) error {
+func UpdateUserVerified(username string) error {
 	svc := utils.DynamodbClient()
 	tableName := os.Getenv("DYNAMODB_TABLE_NAME")
 
-	key := fmt.Sprintf("ACCOUNT#%s", username)
+	key := fmt.Sprintf("ACCOUNT#%s", strings.ToLower(username))
 
 	input := &dynamodb.UpdateItemInput{
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
@@ -36,7 +36,7 @@ func UpdateUserVerification(username string) error {
 
 	_, err := svc.UpdateItem(input)
 	if err != nil {
-		log.Fatalf("Got error calling UpdateItem: %s", err)
+		return err
 	}
 
 	return nil

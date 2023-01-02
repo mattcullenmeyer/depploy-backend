@@ -41,7 +41,7 @@ func CreateUser(args CreateUserParams) error {
 		Username:  args.Username,
 		Email:     args.Email,
 		Password:  args.Password,
-		CreatedAt: time.Now().Format(time.RFC3339),
+		CreatedAt: time.Now().Format(time.RFC3339), // ISO8601 format for human readability
 		Verified:  false,
 	}
 

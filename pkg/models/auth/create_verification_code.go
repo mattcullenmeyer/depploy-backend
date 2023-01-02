@@ -13,7 +13,7 @@ import (
 )
 
 type CreateVerificationCodeParams struct {
-	Totp     string
+	Otp      string
 	Username string
 	Email    string
 }
@@ -34,8 +34,8 @@ func CreateVerificationCode(args CreateVerificationCodeParams) error {
 	ttl := time.Now().Add(time.Hour * 24)
 
 	verificationCode := VerificationCodeAttributes{
-		PK:         args.Totp,
-		SK:         args.Totp,
+		PK:         args.Otp,
+		SK:         args.Otp,
 		Username:   strings.ToLower(args.Username),
 		Email:      args.Email,
 		Expiration: ttl.Format(time.RFC3339), // ISO8601 format for human readability

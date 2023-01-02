@@ -64,6 +64,7 @@ func LoginUser(c *gin.Context) {
 
 	refresh, err := utils.GenerateRefreshToken(generateTokenArgs)
 	if err != nil {
+		log.Println(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate authentication refresh token"})
 		return
 	}

@@ -36,7 +36,7 @@ func VerifyEmail(c *gin.Context) {
 		return
 	}
 
-	if err := authModel.UpdateUserVerification(result.Username); err != nil {
+	if err := authModel.UpdateUserVerified(result.Username); err != nil {
 		log.Println(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify email"})
 		return
