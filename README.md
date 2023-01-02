@@ -104,6 +104,14 @@ aws dynamodb get-item \
   --region us-east-1
 ```
 
+```
+aws dynamodb get-item \
+  --table-name Depploy \
+  --endpoint-url http://localhost:8000 \
+  --key '{ "PK": {"S": "VU2LHOHWD7LXRBLDDNCUOVYACPAIFMGP"}, "SK": {"S": "VU2LHOHWD7LXRBLDDNCUOVYACPAIFMGP"}}' \
+  --region us-east-1
+```
+
 ## Lambda Deployment
 
 The executable must be in the root of the zip file — not in a folder within the zip file.  

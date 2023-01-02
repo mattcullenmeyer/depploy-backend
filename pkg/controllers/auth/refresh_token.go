@@ -1,6 +1,7 @@
 package authController
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -15,6 +16,7 @@ func RefreshToken(c *gin.Context) {
 	var payload RefreshTokenPayload
 
 	if err := c.ShouldBindJSON(&payload); err != nil {
+		log.Println(err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -23,7 +25,7 @@ func RefreshToken(c *gin.Context) {
 
 	claims, err := utils.ValidateToken(refreshToken)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"status": "fail", "message": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Refresh token is invalid"})
 		return
 	}
 
@@ -32,17 +34,17 @@ func RefreshToken(c *gin.Context) {
 		Account:  claims.Account,
 	}
 
-	// Generate JWT
 	token, err := utils.GenerateToken(generateTokenArgs)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": err.Error()})
+		log.Println(err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate authentication token"})
 		return
 	}
 
-	// Generate refresh JWT
 	refresh, err := utils.GenerateRefreshToken(generateTokenArgs)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": err.Error()})
+		log.Println(err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate refresh authentication token"})
 		return
 	}
 

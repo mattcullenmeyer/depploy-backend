@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"log"
 	"net/http"
 	"strings"
 
@@ -15,25 +16,26 @@ func TokenAuth() gin.HandlerFunc {
 		values := strings.Split(header, " ")
 
 		if len(values) != 2 {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"status": "error", "message": "You are not logged in"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "You are not logged in"})
 			return
 		}
 
 		name, token := values[0], values[1]
 
 		if name != "Bearer" {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"status": "error", "message": "You are not logged in"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "You are not logged in"})
 			return
 		}
 
 		claims, err := utils.ValidateToken(token)
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"status": "fail", "message": err.Error()})
+			log.Println(err.Error())
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization token is invalid or expired"})
 			return
 		}
 
 		if !claims.Authorized {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"status": "fail", "message": "You are not authorized to access this resource"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "You are not authorized to access this resource"})
 			return
 		}
 

@@ -24,18 +24,23 @@ func VerifyEmail(c *gin.Context) {
 
 	verificationCode := payload.VerificationCode
 
-	// Fetch verification code and return username
 	result, err := authModel.FetchVerificationCode(verificationCode)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": err.Error()})
+		log.Println(err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify email"})
 		return
 	}
 
-	// Update user as verified
+	if result == (authModel.FetchVerificationCodeResult{}) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Verification code is invalid or expired"})
+		return
+	}
+
 	if err := authModel.UpdateUserVerification(result.Username); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": err.Error()})
+		log.Println(err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify email"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"status": "success", "message": fmt.Sprintf("Email verified successfully for %s", result.Email)})
+	c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("Successfully verified email for %s", result.Email)})
 }

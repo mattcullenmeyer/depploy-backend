@@ -235,7 +235,7 @@ resource "aws_dynamodb_table" "main" {
   }
 
   ttl {
-    attribute_name = "TimeToLive"
+    attribute_name = "TTL"
     enabled        = true
   }
 }

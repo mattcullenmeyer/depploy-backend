@@ -43,7 +43,8 @@ func RegisterUser(c *gin.Context) {
 	}
 
 	if err := authModel.CreateUser(createUserArgs); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		log.Println(err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save new user"})
 		return
 	}
 
@@ -55,6 +56,7 @@ func RegisterUser(c *gin.Context) {
 	if err != nil {
 		log.Println(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate verification code"})
+		return
 	}
 
 	args := authModel.CreateVerificationCodeParams{

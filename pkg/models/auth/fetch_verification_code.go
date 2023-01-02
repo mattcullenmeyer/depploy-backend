@@ -1,9 +1,6 @@
 package authModel
 
 import (
-	"errors"
-	"fmt"
-	"log"
 	"os"
 	"time"
 
@@ -28,15 +25,16 @@ func FetchVerificationCode(otp string) (FetchVerificationCodeResult, error) {
 	svc := utils.DynamodbClient()
 	tableName := os.Getenv("DYNAMODB_TABLE_NAME")
 
-	// Return empty result if error
 	emptyResult := FetchVerificationCodeResult{}
 
-	ttl := time.Now().Unix()
+	now := time.Now().Unix()
 
-	keyCondition := expression.Key("PK").Equal(expression.Value(otp))
+	pkCondition := expression.Key("PK").Equal(expression.Value(otp))
+	skCondition := expression.Key("SK").Equal(expression.Value(otp))
+	keyCondition := pkCondition.And(skCondition)
 
-	// Exclude expired verification codes
-	filter := expression.Name("TTL").GreaterThan(expression.Value(ttl))
+	// Only include verification codes where expiration is in the future
+	filter := expression.Name("TTL").GreaterThan(expression.Value(now))
 
 	// Combine the key condition and filter together as a DynamoDB expression builder
 	expr, err := expression.NewBuilder().
@@ -44,8 +42,7 @@ func FetchVerificationCode(otp string) (FetchVerificationCodeResult, error) {
 		WithFilter(filter).
 		Build()
 	if err != nil {
-		log.Println(err)
-		return emptyResult, errors.New("something went wrong")
+		return emptyResult, err
 	}
 
 	input := &dynamodb.QueryInput{
@@ -58,24 +55,21 @@ func FetchVerificationCode(otp string) (FetchVerificationCodeResult, error) {
 
 	queryOutput, err := svc.Query(input)
 	if err != nil {
-		log.Fatalf("Got error calling QueryInput: %s", err)
+		return emptyResult, err
 	}
 
 	if len(queryOutput.Items) == 0 {
-		return emptyResult, errors.New("invalid verification code")
+		return emptyResult, nil
 	}
 
 	attributeValues := []QueryAttributeValues{}
 
 	err = dynamodbattribute.UnmarshalListOfMaps(queryOutput.Items, &attributeValues)
 	if err != nil {
-		panic(fmt.Sprintf("Failed to unmarshal Record, %v", err))
+		return emptyResult, err
 	}
 
-	result := FetchVerificationCodeResult{
-		Username: attributeValues[0].Username,
-		Email:    attributeValues[0].Email,
-	}
+	result := FetchVerificationCodeResult(attributeValues[0])
 
 	return result, nil
 }

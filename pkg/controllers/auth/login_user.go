@@ -1,10 +1,11 @@
 package authController
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	authModel "github.com/mattcullenmeyer/depploy-backend/pkg/models/auth"
+	userModel "github.com/mattcullenmeyer/depploy-backend/pkg/models/user"
 	"github.com/mattcullenmeyer/depploy-backend/pkg/utils"
 )
 
@@ -17,21 +18,35 @@ func LoginUser(c *gin.Context) {
 	var payload LoginUserPayload
 
 	if err := c.ShouldBindJSON(&payload); err != nil {
+		log.Println(err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	username := payload.Username
 
-	user := authModel.FetchUserPassword(username)
+	user, err := userModel.FetchUser(username)
+
+	if err != nil {
+		log.Println(err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to log in user"})
+		return
+	}
+
+	if user == (userModel.FetchUserResult{}) {
+		// User does not exist
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid username or password"})
+		return
+	}
 
 	if !user.Verified {
-		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "Please verify your email"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Please verify your email"})
 		return
 	}
 
 	if err := utils.VerifyPassword(user.Password, payload.Password); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "Invalid email or password"})
+		// Password is incorrect
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid username or password"})
 		return
 	}
 
@@ -40,19 +55,18 @@ func LoginUser(c *gin.Context) {
 		Account:  username,
 	}
 
-	// Generate JWT
 	token, err := utils.GenerateToken(generateTokenArgs)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": err.Error()})
+		log.Println(err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate authentication token"})
 		return
 	}
 
-	// Generate refresh JWT
 	refresh, err := utils.GenerateRefreshToken(generateTokenArgs)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate authentication refresh token"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"status": "success", "token": token, "refresh_token": refresh})
+	c.JSON(http.StatusOK, gin.H{"token": token, "refresh_token": refresh})
 }

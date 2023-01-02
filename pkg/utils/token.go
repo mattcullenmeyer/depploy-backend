@@ -70,7 +70,7 @@ func GenerateRefreshToken(args GenerateTokenParams) (string, error) {
 	tokenString, err := token.SignedString([]byte(secretJWTKey))
 
 	if err != nil {
-		return "", fmt.Errorf("generating JWT Token failed: %w", err)
+		return "", fmt.Errorf("generating JWT refresh Token failed: %w", err)
 	}
 
 	return tokenString, nil

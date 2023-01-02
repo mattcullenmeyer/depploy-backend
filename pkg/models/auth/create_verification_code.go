@@ -24,7 +24,7 @@ type VerificationCodeAttributes struct {
 	Username   string `dynamodbav:"Username"`
 	Email      string `dynamodbav:"Email"`
 	Expiration string `dynamodbav:"Expiration"`
-	TTL        int64  `dynamodbav:"TimeToLive"`
+	TTL        int64  `dynamodbav:"TTL"`
 }
 
 func CreateVerificationCode(args CreateVerificationCodeParams) error {
@@ -38,7 +38,7 @@ func CreateVerificationCode(args CreateVerificationCodeParams) error {
 		SK:         args.Totp,
 		Username:   strings.ToLower(args.Username),
 		Email:      args.Email,
-		Expiration: ttl.Format(time.RFC3339),
+		Expiration: ttl.Format(time.RFC3339), // ISO8601 format for human readability
 		TTL:        ttl.Unix(),
 	}
 
