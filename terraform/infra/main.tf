@@ -221,13 +221,21 @@ resource "aws_route53_record" "api_gateway" {
 resource "aws_dynamodb_table" "main" {
   name         = "depploy-users-prod"
   billing_mode = "PAY_PER_REQUEST"
-  # read_capacity  = 20
-  # write_capacity = 20
-  hash_key = "Username"
-  # range_key      = "GameTitle"
+  hash_key     = "PK"
+  range_key    = "SK"
 
   attribute {
-    name = "Username"
+    name = "PK"
     type = "S"
+  }
+
+  attribute {
+    name = "SK"
+    type = "S"
+  }
+
+  ttl {
+    attribute_name = "TTL"
+    enabled        = true
   }
 }

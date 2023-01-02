@@ -1,5 +1,7 @@
 ## Initialize
 
+`go mod init github.com/mattcullenmeyer/depploy-backend`
+
 TODO: Put these into a Makefile or bash script
 
 `touch .git/hooks/pre-push`
@@ -17,6 +19,24 @@ sudo apt update
 sudo apt install build-essential
 sudo snap install golangci-lint
 golangci-lint version
+```
+
+## Environment Variables
+
+Set environment variables
+
+```
+export AWS_REGION=us-east-1
+export DYNAMODB_TABLE_NAME=user
+export DYNAMODB_ENDPOINT=http://localhost:8000
+```
+
+Output environment variables
+
+```
+echo $AWS_REGION
+echo $DYNAMODB_TABLE_NAME
+echo $DYNAMODB_ENDPOINT
 ```
 
 ## Run Locally
@@ -78,32 +98,18 @@ aws dynamodb put-item \
 
 ```
 aws dynamodb get-item \
-  --table-name user \
+  --table-name Depploy \
   --endpoint-url http://localhost:8000 \
-  --key '{"Username": {"S": "matt"}}' \
+  --key '{ "PK": {"S": "ACCOUNT#test20"}, "SK": {"S": "ACCOUNT#test20"}}' \
   --region us-east-1
 ```
 
-## Initialize
-
-`go mod init github.com/mattcullenmeyer/depploy-backend`
-
-## Environment Variables
-
-Set environment variables
-
 ```
-export AWS_REGION=us-east-1
-export DYNAMODB_TABLE_NAME=user
-export DYNAMODB_ENDPOINT=http://localhost:8000
-```
-
-Output environment variables
-
-```
-echo $AWS_REGION
-echo $DYNAMODB_TABLE_NAME
-echo $DYNAMODB_ENDPOINT
+aws dynamodb get-item \
+  --table-name Depploy \
+  --endpoint-url http://localhost:8000 \
+  --key '{ "PK": {"S": "VU2LHOHWD7LXRBLDDNCUOVYACPAIFMGP"}, "SK": {"S": "VU2LHOHWD7LXRBLDDNCUOVYACPAIFMGP"}}' \
+  --region us-east-1
 ```
 
 ## Lambda Deployment
