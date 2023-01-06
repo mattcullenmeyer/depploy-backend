@@ -44,7 +44,7 @@ func RegisterUser(c *gin.Context) {
 
 	if err := authModel.CreateUser(createUserArgs); err != nil {
 		log.Println(err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save new user"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Username already exists"})
 		return
 	}
 
