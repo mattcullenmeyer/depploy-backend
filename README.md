@@ -27,7 +27,7 @@ Set environment variables
 
 ```
 export AWS_REGION=us-east-1
-export DYNAMODB_TABLE_NAME=user
+export DYNAMODB_TABLE_NAME=Depploy
 export DYNAMODB_ENDPOINT=http://localhost:8000
 ```
 
