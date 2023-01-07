@@ -59,7 +59,7 @@ http://localhost:8080/
 ## Run Docker Compose (this one!!!)
 
 `docker compose build`  
-`docker compose up`  
+`docker compose --env-file .env up`  
 `docker compose down`
 
 Ensure docker has permissions to access dynamodb volume  
