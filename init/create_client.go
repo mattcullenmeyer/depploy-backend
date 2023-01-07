@@ -8,7 +8,7 @@ import (
 
 func CreateClient() *dynamodb.DynamoDB {
 	config := &aws.Config{
-		Region:   aws.String("us-west-1"),
+		Region:   aws.String("us-east-1"),
 		Endpoint: aws.String("http://localhost:8000"),
 	}
 
