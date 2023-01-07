@@ -12,7 +12,7 @@ func TestHandler(t *testing.T) {
 	router := RegisterRoutes()
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest(http.MethodGet, "/test", nil)
+	req, _ := http.NewRequest(http.MethodGet, "/healthcheck", nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
