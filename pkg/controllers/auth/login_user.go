@@ -26,7 +26,6 @@ func LoginUser(c *gin.Context) {
 	username := payload.Username
 
 	user, err := userModel.FetchUser(username)
-
 	if err != nil {
 		log.Println(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to log in user"})
