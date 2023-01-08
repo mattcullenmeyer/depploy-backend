@@ -104,6 +104,7 @@ resource "aws_lambda_function" "main" {
   environment {
     variables = {
       DYNAMODB_TABLE_NAME = "depploy-users-prod"
+      ENVIRONMENT         = "production"
     }
   }
 }

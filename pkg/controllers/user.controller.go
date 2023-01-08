@@ -64,7 +64,7 @@ func GetUser(c *gin.Context) {
 }
 
 func GetSecret(c *gin.Context) {
-	value, err := utils.GetParameter("/depploy/backend/production/JwtSecretKey")
+	value, err := utils.GetParameter("JwtSecretKey")
 	if err != nil {
 		log.Println(err.Error())
 		return

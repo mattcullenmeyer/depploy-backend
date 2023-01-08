@@ -7,8 +7,6 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
-var secretJWTKey = []byte("gosecretkey") // TODO: store as env variable
-
 type GenerateTokenParams struct {
 	Username string
 	Account  string
@@ -20,9 +18,25 @@ type ValidateTokenResult struct {
 	Authorized bool
 }
 
+func GetJwtSecretKey() ([]byte, error) {
+	key, err := GetParameter("JwtSecretKey")
+	if err != nil {
+		return []byte(""), err
+	}
+
+	jwtSecretKey := []byte(key)
+
+	return jwtSecretKey, nil
+}
+
 func GenerateToken(args GenerateTokenParams) (string, error) {
 	// Create a JWT
 	token := jwt.New(jwt.SigningMethodHS256)
+
+	jwtSecretKey, err := GetJwtSecretKey()
+	if err != nil {
+		return "", err
+	}
 
 	// Modify the JWT with registered claims
 	// https://auth0.com/docs/secure/tokens/json-web-tokens/json-web-token-claims
@@ -39,7 +53,7 @@ func GenerateToken(args GenerateTokenParams) (string, error) {
 	claims["auth"] = true
 
 	// Sign the JWT with a secret key
-	tokenString, err := token.SignedString([]byte(secretJWTKey))
+	tokenString, err := token.SignedString([]byte(jwtSecretKey))
 
 	if err != nil {
 		return "", fmt.Errorf("generating JWT Token failed: %w", err)
@@ -51,6 +65,11 @@ func GenerateToken(args GenerateTokenParams) (string, error) {
 func GenerateRefreshToken(args GenerateTokenParams) (string, error) {
 	// Create a JWT
 	token := jwt.New(jwt.SigningMethodHS256)
+
+	jwtSecretKey, err := GetJwtSecretKey()
+	if err != nil {
+		return "", err
+	}
 
 	// Modify the JWT with registered claims
 	// https://auth0.com/docs/secure/tokens/json-web-tokens/json-web-token-claims
@@ -67,7 +86,7 @@ func GenerateRefreshToken(args GenerateTokenParams) (string, error) {
 	claims["auth"] = false
 
 	// Sign the JWT with a secret key
-	tokenString, err := token.SignedString([]byte(secretJWTKey))
+	tokenString, err := token.SignedString([]byte(jwtSecretKey))
 
 	if err != nil {
 		return "", fmt.Errorf("generating JWT refresh Token failed: %w", err)
@@ -79,12 +98,17 @@ func GenerateRefreshToken(args GenerateTokenParams) (string, error) {
 func ValidateToken(token string) (ValidateTokenResult, error) {
 	emptyResult := ValidateTokenResult{}
 
+	jwtSecretKey, err := GetJwtSecretKey()
+	if err != nil {
+		return emptyResult, err
+	}
+
 	tok, err := jwt.Parse(token, func(jwtToken *jwt.Token) (interface{}, error) {
 		if _, ok := jwtToken.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected method: %s", jwtToken.Header["alg"])
 		}
 
-		return []byte(secretJWTKey), nil
+		return []byte(jwtSecretKey), nil
 	})
 	if err != nil {
 		return emptyResult, fmt.Errorf("invalidate token: %w", err)

@@ -59,20 +59,31 @@ func RegisterUser(c *gin.Context) {
 		return
 	}
 
-	args := authModel.CreateVerificationCodeParams{
+	otpArgs := authModel.CreateVerificationCodeParams{
 		Otp:      key.Secret(),
 		Username: username,
 		Email:    email,
 	}
 
 	// Save verification code to database
-	if err := authModel.CreateVerificationCode(args); err != nil {
+	if err := authModel.CreateVerificationCode(otpArgs); err != nil {
 		log.Println(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save verification code"})
 		return
 	}
 
-	// Send verification email
+	emailArgs := utils.SendConfirmationEmailParams{
+		Otp:      key.Secret(),
+		Username: username,
+		Email:    email,
+	}
 
-	c.JSON(http.StatusCreated, gin.H{"username": username, "otp": key.Secret()})
+	// Send verification email
+	if err := utils.SendConfirmationEmail(emailArgs); err != nil {
+		log.Println(err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send email verification"})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{"username": username, "email": email})
 }
