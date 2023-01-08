@@ -75,7 +75,6 @@ func ResendEmail(c *gin.Context) {
 		Email:    email,
 	}
 
-	// Send verification email
 	if err := utils.SendConfirmationEmail(emailArgs); err != nil {
 		log.Println(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send email verification"})
