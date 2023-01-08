@@ -6,19 +6,16 @@ import (
 
 	"github.com/gin-gonic/gin"
 	authModel "github.com/mattcullenmeyer/depploy-backend/pkg/models/auth"
+	userModel "github.com/mattcullenmeyer/depploy-backend/pkg/models/user"
 	"github.com/mattcullenmeyer/depploy-backend/pkg/utils"
 )
 
-type RegisterUserPayload struct {
-	Username string `json:"username" binding:"required"`
-	Email    string `json:"email" binding:"required"`
-	Password string `json:"password" binding:"required"`
+type ResendEmailPayload struct {
+	Email string `json:"email" binding:"required"`
 }
 
-// https://pkg.go.dev/github.com/gin-gonic/gin#section-readme
-// See "Model binding and validation" section
-func RegisterUser(c *gin.Context) {
-	var payload RegisterUserPayload
+func ResendEmail(c *gin.Context) {
+	var payload ResendEmailPayload
 
 	if err := c.ShouldBindJSON(&payload); err != nil {
 		log.Println(err.Error())
@@ -26,24 +23,29 @@ func RegisterUser(c *gin.Context) {
 		return
 	}
 
-	username, email, password := payload.Username, payload.Email, payload.Password
+	email := payload.Email
 
-	hashedPassword, err := utils.HashPassword(password)
+	// TODO: Need new access pattern to fetch user by email instead of username
+	// The Username is currently the same as the Email, but that will eventually change
+	user, err := userModel.FetchUser(email)
 	if err != nil {
 		log.Println(err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Password encryption failed"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch user"})
 		return
 	}
 
-	createUserArgs := authModel.CreateUserParams{
-		Username: username,
-		Email:    email,
-		Password: hashedPassword,
+	username := user.Username
+
+	if user == (userModel.FetchUserResult{}) {
+		// User does not exist
+		// Return status ok since we don't want to communicate that the user doesn't exist
+		log.Printf("Cannot resend email verification because '%s' does not exist", email)
+		c.Status(http.StatusOK)
+		return
 	}
 
-	if err := authModel.CreateUser(createUserArgs); err != nil {
-		log.Println(err.Error())
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Username already exists"})
+	if user.Verified {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "User is already verified"})
 		return
 	}
 
@@ -73,12 +75,11 @@ func RegisterUser(c *gin.Context) {
 		Email:    email,
 	}
 
-	// Send verification email
 	if err := utils.SendConfirmationEmail(emailArgs); err != nil {
 		log.Println(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send email verification"})
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"username": username, "email": email})
+	c.Status(http.StatusOK)
 }
