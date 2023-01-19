@@ -22,6 +22,8 @@ type CreateUserParams struct {
 type UserAttributes struct {
 	PK        string `dynamodbav:"PK"`
 	SK        string `dynamodbav:"SK"`
+	GSI1PK    string `dynamodbav:"GSI1PK"`
+	GSI1SK    string `dynamodbav:"GSI1SK"`
 	Username  string `dynamodbav:"Username"`
 	Email     string `dynamodbav:"Email"`
 	Password  string `dynamodbav:"Password"`
@@ -38,6 +40,8 @@ func CreateUser(args CreateUserParams) error {
 	user := UserAttributes{
 		PK:        key,
 		SK:        key,
+		GSI1PK:    key, // TODO: this should be user id
+		GSI1SK:    key, // TODO: this should be user id
 		Username:  args.Username,
 		Email:     args.Email,
 		Password:  args.Password,

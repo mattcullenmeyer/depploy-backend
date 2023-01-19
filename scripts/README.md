@@ -41,3 +41,5 @@ export DYNAMODB_ENDPOINT=dynamodb.us-east-1.amazonaws.com
 ### User scripts
 
 - Fetch user: `go run ./scripts/user/fetchUser/main.go -u=username`
+
+- Fetch users: `go run ./scripts/user/fetchUsers/main.go -l=limit -k=next_key`

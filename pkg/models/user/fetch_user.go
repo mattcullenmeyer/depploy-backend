@@ -31,7 +31,7 @@ func FetchUser(username string) (FetchUserResult, error) {
 	svc := utils.DynamodbClient()
 	tableName := os.Getenv("DYNAMODB_TABLE_NAME")
 
-	emptResult := FetchUserResult{}
+	emptyResult := FetchUserResult{}
 
 	key := fmt.Sprintf("ACCOUNT#%s", strings.ToLower(username))
 
@@ -49,18 +49,18 @@ func FetchUser(username string) (FetchUserResult, error) {
 
 	getItemOutput, err := svc.GetItem(input)
 	if err != nil {
-		return emptResult, err
+		return emptyResult, err
 	}
 
 	if getItemOutput.Item == nil {
-		return emptResult, nil
+		return emptyResult, nil
 	}
 
 	attributeValues := GetItemAttributeValues{}
 
 	err = dynamodbattribute.UnmarshalMap(getItemOutput.Item, &attributeValues)
 	if err != nil {
-		return emptResult, err
+		return emptyResult, err
 	}
 
 	result := FetchUserResult(attributeValues)

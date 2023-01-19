@@ -10,7 +10,7 @@ import (
 )
 
 type RegisterUserPayload struct {
-	Username string `json:"username" binding:"required"`
+	// Username string `json:"username" binding:"required"`
 	Email    string `json:"email" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }
@@ -26,7 +26,8 @@ func RegisterUser(c *gin.Context) {
 		return
 	}
 
-	username, email, password := payload.Username, payload.Email, payload.Password
+	email, password := payload.Email, payload.Password
+	username := email // Currently set username as email address
 
 	hashedPassword, err := utils.HashPassword(password)
 	if err != nil {
@@ -67,18 +68,18 @@ func RegisterUser(c *gin.Context) {
 		return
 	}
 
-	emailArgs := utils.SendConfirmationEmailParams{
-		Otp:      otp,
-		Username: username,
-		Email:    email,
-	}
+	// emailArgs := utils.SendConfirmationEmailParams{
+	// 	Otp:      otp,
+	// 	Username: username,
+	// 	Email:    email,
+	// }
 
-	// Send verification email
-	if err := utils.SendConfirmationEmail(emailArgs); err != nil {
-		log.Println(err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send email verification"})
-		return
-	}
+	// // Send verification email
+	// if err := utils.SendConfirmationEmail(emailArgs); err != nil {
+	// 	log.Println(err.Error())
+	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send email verification"})
+	// 	return
+	// }
 
 	c.JSON(http.StatusCreated, gin.H{"username": username, "email": email})
 }
