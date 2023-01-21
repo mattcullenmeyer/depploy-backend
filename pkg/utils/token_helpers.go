@@ -8,14 +8,16 @@ import (
 )
 
 type GenerateTokenParams struct {
-	Username string
-	Account  string
+	Username  string
+	Account   string
+	Superuser bool
 }
 
 type ValidateTokenResult struct {
 	Username   string
 	Account    string
 	Authorized bool
+	Superuser  bool
 }
 
 func GetJwtSecretKey() ([]byte, error) {
@@ -29,6 +31,7 @@ func GetJwtSecretKey() ([]byte, error) {
 	return jwtSecretKey, nil
 }
 
+// Users can only get an auth token if they've already verified their email
 func GenerateToken(args GenerateTokenParams) (string, error) {
 	// Create a JWT
 	token := jwt.New(jwt.SigningMethodHS256)
@@ -49,8 +52,9 @@ func GenerateToken(args GenerateTokenParams) (string, error) {
 	claims["nbf"] = time.Now().Unix()                       // Not before time
 
 	// Custom claims
-	claims["act"] = args.Account
-	claims["auth"] = true
+	claims["act"] = args.Account // Accountn ID
+	claims["auth"] = true        // Auth token can be used to access secure resources
+	claims["admin"] = args.Superuser
 
 	// Sign the JWT with a secret key
 	tokenString, err := token.SignedString([]byte(jwtSecretKey))
@@ -82,8 +86,9 @@ func GenerateRefreshToken(args GenerateTokenParams) (string, error) {
 	claims["nbf"] = time.Now().Unix()                     // Not before time
 
 	// Custom claims
-	claims["act"] = args.Account
-	claims["auth"] = false
+	claims["act"] = args.Account // Account ID
+	claims["auth"] = false       // Refresh token cannot be used to access secure resources
+	claims["admin"] = args.Superuser
 
 	// Sign the JWT with a secret key
 	tokenString, err := token.SignedString([]byte(jwtSecretKey))
@@ -123,6 +128,7 @@ func ValidateToken(token string) (ValidateTokenResult, error) {
 		Username:   claims["sub"].(string),
 		Account:    claims["act"].(string),
 		Authorized: claims["auth"].(bool),
+		Superuser:  claims["admin"].(bool),
 	}
 
 	return result, nil

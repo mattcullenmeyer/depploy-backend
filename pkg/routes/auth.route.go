@@ -8,7 +8,7 @@ import (
 func AuthRoute(router *gin.RouterGroup) {
 	router.POST("/register", authController.RegisterUser)
 	router.POST("/login", authController.LoginUser)
-	router.POST("/verify", authController.VerifyEmail)
-	router.POST("/refresh", authController.RefreshToken)
-	router.POST("/resend", authController.ResendEmail)
+	router.POST("/token/refresh", authController.RefreshToken)
+	router.PATCH("/email/verify", authController.VerifyEmail)
+	router.POST("/email/resend", authController.ResendEmail)
 }

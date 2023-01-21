@@ -1,16 +1,26 @@
 package middleware
 
 import (
+	"log"
+	"strings"
 	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/mattcullenmeyer/depploy-backend/pkg/utils"
 )
 
+// https://github.com/gin-contrib/cors
 func CorsMiddleware(router *gin.Engine) {
+	allowOriginsString, err := utils.GetParameter("CorsAllowOrigins") // TODO: Error handling and consolidate getting parameters
+	if err != nil {
+		log.Println(err)
+	}
+
+	allowOrigins := strings.Split(allowOriginsString, ",")
+
 	config := cors.Config{
-		// AllowAllOrigins: true,
-		AllowOrigins:     []string{"http://127.0.0.1:3000", "http://localhost"},
+		AllowOrigins:     allowOrigins,
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
 		AllowHeaders:     []string{"*"},
 		AllowCredentials: true,

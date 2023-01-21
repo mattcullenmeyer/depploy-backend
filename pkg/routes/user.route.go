@@ -6,9 +6,10 @@ import (
 	"github.com/mattcullenmeyer/depploy-backend/pkg/middleware"
 )
 
+// WARNING: Do NOT add endpoint to change superuser access
 func UserRoute(router *gin.RouterGroup) {
 	// router.GET("/username/:username", userController.Username) // TODO: Clean up Username controller
-	router.GET("/email/:email", userController.CheckEmailAvailability)
-	router.GET("/user", middleware.TokenAuth(), userController.GetUser)
-	router.GET("/users", userController.GetUsers)
+	router.GET("/username/:username", userController.CheckUsernameAvailability)
+	router.GET("/details", middleware.TokenAuth(), userController.GetUser)
+	router.GET("/users", middleware.TokenAuth(), middleware.SuperuserAuth(), userController.GetUsers)
 }

@@ -14,8 +14,8 @@ import (
 )
 
 type CreateUserParams struct {
-	AccountId string
 	Username  string
+	AccountId string
 	Email     string
 	Password  string
 }
@@ -25,12 +25,13 @@ type UserAttributes struct {
 	SK        string `dynamodbav:"SK"`
 	GSI1PK    string `dynamodbav:"GSI1PK"`
 	GSI1SK    string `dynamodbav:"GSI1SK"`
-	AccountId string `dynamodbav:"AccountId"`
 	Username  string `dynamodbav:"Username"`
+	AccountId string `dynamodbav:"AccountId"`
 	Email     string `dynamodbav:"Email"`
 	Password  string `dynamodbav:"Password"`
 	CreatedAt string `dynamodbav:"CreatedAt"`
 	Verified  bool   `dynamodbav:"Verified"`
+	Superuser bool   `dynamodbav:"Superuser"`
 }
 
 func CreateUser(args CreateUserParams) error {
@@ -45,12 +46,13 @@ func CreateUser(args CreateUserParams) error {
 		SK:        key,
 		GSI1PK:    gsi1Key,
 		GSI1SK:    gsi1Key,
-		AccountId: args.AccountId,
 		Username:  args.Username,
+		AccountId: args.AccountId,
 		Email:     args.Email,
 		Password:  args.Password,
 		CreatedAt: time.Now().Format(time.RFC3339), // ISO8601 format for human readability
 		Verified:  false,
+		Superuser: false,
 	}
 
 	item, err := dynamodbattribute.MarshalMap(user)

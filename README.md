@@ -112,7 +112,11 @@ aws dynamodb get-item \
   --region us-east-1
 ```
 
-## Lambda Deployment
+## Create superuser
+
+See scripts (updateUserSuperuser)
+
+## Lambda deployment
 
 The executable must be in the root of the zip file — not in a folder within the zip file.  
 Use the -j flag to junk directory names, otherwise lambda won't work.

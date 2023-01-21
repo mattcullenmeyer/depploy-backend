@@ -11,7 +11,7 @@ import (
 )
 
 type ResendEmailPayload struct {
-	Email string `json:"email" binding:"required"`
+	Username string `json:"username" binding:"required"`
 }
 
 func ResendEmail(c *gin.Context) {
@@ -23,23 +23,19 @@ func ResendEmail(c *gin.Context) {
 		return
 	}
 
-	email := payload.Email
+	username := payload.Username
 
-	// TODO: Need new access pattern to fetch user by email instead of username
-	// The Username is currently the same as the Email, but that will eventually change
-	user, err := userModel.FetchUser(email)
+	user, err := userModel.FetchUser(username)
 	if err != nil {
 		log.Println(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch user"})
 		return
 	}
 
-	username := user.Username
-
 	if user == (userModel.FetchUserResult{}) {
 		// User does not exist
 		// Return status ok since we don't want to communicate that the user doesn't exist
-		log.Printf("Cannot resend email verification because '%s' does not exist", email)
+		log.Printf("Cannot resend email verification because '%s' does not exist", username)
 		c.Status(http.StatusOK)
 		return
 	}
@@ -59,7 +55,7 @@ func ResendEmail(c *gin.Context) {
 	otpArgs := authModel.CreateVerificationCodeParams{
 		Otp:      otp,
 		Username: username,
-		Email:    email,
+		Email:    user.Email,
 	}
 
 	// Save verification code to database
@@ -72,7 +68,7 @@ func ResendEmail(c *gin.Context) {
 	emailArgs := utils.SendConfirmationEmailParams{
 		Otp:      otp,
 		Username: username,
-		Email:    email,
+		Email:    user.Email,
 	}
 
 	if err := utils.SendConfirmationEmail(emailArgs); err != nil {
@@ -81,5 +77,6 @@ func ResendEmail(c *gin.Context) {
 		return
 	}
 
-	c.Status(http.StatusOK)
+	c.Status(http.StatusNoContent)
+	// c.JSON(http.StatusOK, gin.H{"otp": otp})
 }

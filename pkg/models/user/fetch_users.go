@@ -10,11 +10,13 @@ import (
 	"github.com/mattcullenmeyer/depploy-backend/pkg/utils"
 )
 
+// Update the dynamodb projection below if you edit the UserResult type struct here
 type UserResult struct {
-	AccountId string
 	Username  string
+	AccountId string
 	Email     string
 	Verified  bool
+	Superuser bool
 }
 
 type FetchUsersResult struct {
@@ -33,11 +35,13 @@ func FetchUsers(limit int64, key string) (FetchUsersResult, error) {
 		return emptyResult, err
 	}
 
+	// update the UserResult struct type above if you edit the projection here
 	projection := expression.NamesList(
-		expression.Name("AccountId"),
 		expression.Name("Username"),
+		expression.Name("AccountId"),
 		expression.Name("Email"),
 		expression.Name("Verified"),
+		expression.Name("Superuser"),
 	)
 
 	expr, err := expression.NewBuilder().

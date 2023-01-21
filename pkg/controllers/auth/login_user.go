@@ -50,8 +50,9 @@ func LoginUser(c *gin.Context) {
 	}
 
 	generateTokenArgs := utils.GenerateTokenParams{
-		Username: username,
-		Account:  username,
+		Username:  username,
+		Account:   user.AccountId,
+		Superuser: user.Superuser,
 	}
 
 	token, err := utils.GenerateToken(generateTokenArgs)
