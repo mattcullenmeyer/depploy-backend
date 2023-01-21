@@ -14,19 +14,24 @@ import (
 )
 
 type CreateUserParams struct {
-	Username string
-	Email    string
-	Password string
+	Username  string
+	AccountId string
+	Email     string
+	Password  string
 }
 
 type UserAttributes struct {
 	PK        string `dynamodbav:"PK"`
 	SK        string `dynamodbav:"SK"`
+	GSI1PK    string `dynamodbav:"GSI1PK"`
+	GSI1SK    string `dynamodbav:"GSI1SK"`
 	Username  string `dynamodbav:"Username"`
+	AccountId string `dynamodbav:"AccountId"`
 	Email     string `dynamodbav:"Email"`
 	Password  string `dynamodbav:"Password"`
 	CreatedAt string `dynamodbav:"CreatedAt"`
 	Verified  bool   `dynamodbav:"Verified"`
+	Superuser bool   `dynamodbav:"Superuser"`
 }
 
 func CreateUser(args CreateUserParams) error {
@@ -34,15 +39,20 @@ func CreateUser(args CreateUserParams) error {
 	tableName := os.Getenv("DYNAMODB_TABLE_NAME")
 
 	key := fmt.Sprintf("ACCOUNT#%s", strings.ToLower(args.Username))
+	gsi1Key := fmt.Sprintf("ID#%s", args.AccountId)
 
 	user := UserAttributes{
 		PK:        key,
 		SK:        key,
+		GSI1PK:    gsi1Key,
+		GSI1SK:    gsi1Key,
 		Username:  args.Username,
+		AccountId: args.AccountId,
 		Email:     args.Email,
 		Password:  args.Password,
 		CreatedAt: time.Now().Format(time.RFC3339), // ISO8601 format for human readability
 		Verified:  false,
+		Superuser: false,
 	}
 
 	item, err := dynamodbattribute.MarshalMap(user)

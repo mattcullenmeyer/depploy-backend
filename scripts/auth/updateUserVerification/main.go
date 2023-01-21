@@ -9,11 +9,13 @@ import (
 
 func main() {
 	usernamePtr := flag.String("u", "", "username")
+	verifiedPtr := flag.Bool("v", true, "verified boolean")
 	flag.Parse()
 
 	username := *usernamePtr
+	verified := *verifiedPtr
 
-	if err := authModel.UpdateUserVerified(username); err != nil {
+	if err := authModel.UpdateUserVerified(username, verified); err != nil {
 		fmt.Println(err.Error())
 	}
 

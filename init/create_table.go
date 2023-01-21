@@ -22,6 +22,14 @@ func CreateTable() {
 				AttributeName: aws.String("SK"),
 				AttributeType: aws.String("S"),
 			},
+			{
+				AttributeName: aws.String("GSI1PK"),
+				AttributeType: aws.String("S"),
+			},
+			{
+				AttributeName: aws.String("GSI1SK"),
+				AttributeType: aws.String("S"),
+			},
 		},
 		KeySchema: []*dynamodb.KeySchemaElement{
 			{
@@ -38,6 +46,28 @@ func CreateTable() {
 			WriteCapacityUnits: aws.Int64(10),
 		},
 		TableName: aws.String("Depploy"),
+		GlobalSecondaryIndexes: []*dynamodb.GlobalSecondaryIndex{
+			{
+				IndexName: aws.String("GSI1"),
+				KeySchema: []*dynamodb.KeySchemaElement{
+					{
+						AttributeName: aws.String("GSI1PK"),
+						KeyType:       aws.String("HASH"),
+					},
+					{
+						AttributeName: aws.String("GSI1SK"),
+						KeyType:       aws.String("RANGE"),
+					},
+				},
+				Projection: &dynamodb.Projection{
+					ProjectionType: aws.String("ALL"),
+				},
+				ProvisionedThroughput: &dynamodb.ProvisionedThroughput{
+					ReadCapacityUnits:  aws.Int64(10),
+					WriteCapacityUnits: aws.Int64(10),
+				},
+			},
+		},
 	}
 
 	_, err := svc.CreateTable(input)

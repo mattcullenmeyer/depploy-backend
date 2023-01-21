@@ -13,25 +13,29 @@ import (
 
 type GetItemAttributeValues struct {
 	Username  string `dynamodbav:"Username"`
+	AccountId string `dynamodbav:"AccountId"`
 	Email     string `dynamodbav:"Email"`
 	Password  string `dynamodbav:"Password"`
 	CreatedAt string `dynamodbav:"CreatedAt"`
 	Verified  bool   `dynamodbav:"Verified"`
+	Superuser bool   `dynamodbav:"Superuser"`
 }
 
 type FetchUserResult struct {
 	Username  string
+	AccountId string
 	Email     string
 	Password  string
 	CreatedAt string
 	Verified  bool
+	Superuser bool
 }
 
 func FetchUser(username string) (FetchUserResult, error) {
 	svc := utils.DynamodbClient()
 	tableName := os.Getenv("DYNAMODB_TABLE_NAME")
 
-	emptResult := FetchUserResult{}
+	emptyResult := FetchUserResult{}
 
 	key := fmt.Sprintf("ACCOUNT#%s", strings.ToLower(username))
 
@@ -49,18 +53,18 @@ func FetchUser(username string) (FetchUserResult, error) {
 
 	getItemOutput, err := svc.GetItem(input)
 	if err != nil {
-		return emptResult, err
+		return emptyResult, err
 	}
 
 	if getItemOutput.Item == nil {
-		return emptResult, nil
+		return emptyResult, nil
 	}
 
 	attributeValues := GetItemAttributeValues{}
 
 	err = dynamodbattribute.UnmarshalMap(getItemOutput.Item, &attributeValues)
 	if err != nil {
-		return emptResult, err
+		return emptyResult, err
 	}
 
 	result := FetchUserResult(attributeValues)

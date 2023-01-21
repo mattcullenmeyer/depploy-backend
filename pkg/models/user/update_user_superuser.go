@@ -1,4 +1,4 @@
-package authModel
+package userModel
 
 import (
 	"fmt"
@@ -10,7 +10,9 @@ import (
 	"github.com/mattcullenmeyer/depploy-backend/pkg/utils"
 )
 
-func UpdateUserVerified(username string, verified bool) error {
+// WARNING: Do NOT add this to an API endpoint for security reasons
+// This is only used through CLI script
+func UpdateUserSuperuser(username string, access bool) error {
 	svc := utils.DynamodbClient()
 	tableName := os.Getenv("DYNAMODB_TABLE_NAME")
 
@@ -18,8 +20,8 @@ func UpdateUserVerified(username string, verified bool) error {
 
 	input := &dynamodb.UpdateItemInput{
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
-			":verified": {
-				BOOL: aws.Bool(verified),
+			":superuser": {
+				BOOL: aws.Bool(access),
 			},
 		},
 		TableName: aws.String(tableName),
@@ -31,7 +33,7 @@ func UpdateUserVerified(username string, verified bool) error {
 				S: aws.String(key),
 			},
 		},
-		UpdateExpression: aws.String("set Verified = :verified"),
+		UpdateExpression: aws.String("set Superuser = :superuser"),
 	}
 
 	_, err := svc.UpdateItem(input)

@@ -1,4 +1,4 @@
-package controllers
+package userController
 
 import (
 	"fmt"
@@ -11,7 +11,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/gin-gonic/gin"
-	"github.com/mattcullenmeyer/depploy-backend/pkg/utils"
 )
 
 type User struct {
@@ -61,14 +60,4 @@ func GetUser(c *gin.Context) {
 	account := c.MustGet("account")
 
 	c.JSON(http.StatusOK, gin.H{"account": account, "username": username})
-}
-
-func GetSecret(c *gin.Context) {
-	value, err := utils.GetParameter("JwtSecretKey")
-	if err != nil {
-		log.Println(err.Error())
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"value": value})
 }

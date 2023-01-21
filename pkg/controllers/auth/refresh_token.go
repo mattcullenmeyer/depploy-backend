@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	userModel "github.com/mattcullenmeyer/depploy-backend/pkg/models/user"
 	"github.com/mattcullenmeyer/depploy-backend/pkg/utils"
 )
 
@@ -29,9 +30,26 @@ func RefreshToken(c *gin.Context) {
 		return
 	}
 
+	username := claims.Username
+
+	user, err := userModel.FetchUser(username)
+	if err != nil {
+		log.Println(err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch user"})
+		return
+	}
+
+	// Accounts can be blocked by setting verification status to false
+	// therefore, check if account is blocked before refreshing an auth token
+	if !user.Verified {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "You are not authorized to refresh your token"})
+		return
+	}
+
 	generateTokenArgs := utils.GenerateTokenParams{
-		Username: claims.Username,
-		Account:  claims.Account,
+		Username:  claims.Username,
+		AccountId: user.AccountId,
+		Superuser: user.Superuser,
 	}
 
 	token, err := utils.GenerateToken(generateTokenArgs)

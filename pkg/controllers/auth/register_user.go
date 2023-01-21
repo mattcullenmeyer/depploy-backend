@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	authModel "github.com/mattcullenmeyer/depploy-backend/pkg/models/auth"
 	"github.com/mattcullenmeyer/depploy-backend/pkg/utils"
+	"github.com/segmentio/ksuid"
 )
 
 type RegisterUserPayload struct {
@@ -35,10 +36,13 @@ func RegisterUser(c *gin.Context) {
 		return
 	}
 
+	accountId := ksuid.New()
+
 	createUserArgs := authModel.CreateUserParams{
-		Username: username,
-		Email:    email,
-		Password: hashedPassword,
+		Username:  username,
+		AccountId: accountId.String(),
+		Email:     email,
+		Password:  hashedPassword,
 	}
 
 	if err := authModel.CreateUser(createUserArgs); err != nil {
