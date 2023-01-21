@@ -40,7 +40,7 @@ func RefreshToken(c *gin.Context) {
 	}
 
 	// Accounts can be blocked by setting verification status to false
-	// Check if account is blocked before refreshing an auth token
+	// therefore, check if account is blocked before refreshing an auth token
 	if !user.Verified {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "You are not authorized to refresh your token"})
 		return
@@ -48,7 +48,7 @@ func RefreshToken(c *gin.Context) {
 
 	generateTokenArgs := utils.GenerateTokenParams{
 		Username:  claims.Username,
-		Account:   user.AccountId,
+		AccountId: user.AccountId,
 		Superuser: user.Superuser,
 	}
 

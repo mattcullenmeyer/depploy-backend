@@ -39,8 +39,8 @@ func RegisterUser(c *gin.Context) {
 	accountId := ksuid.New()
 
 	createUserArgs := authModel.CreateUserParams{
-		AccountId: accountId.String(),
 		Username:  username,
+		AccountId: accountId.String(),
 		Email:     email,
 		Password:  hashedPassword,
 	}

@@ -9,13 +9,13 @@ import (
 
 type GenerateTokenParams struct {
 	Username  string
-	Account   string
+	AccountId string
 	Superuser bool
 }
 
 type ValidateTokenResult struct {
 	Username   string
-	Account    string
+	AccountId  string
 	Authorized bool
 	Superuser  bool
 }
@@ -52,8 +52,8 @@ func GenerateToken(args GenerateTokenParams) (string, error) {
 	claims["nbf"] = time.Now().Unix()                       // Not before time
 
 	// Custom claims
-	claims["act"] = args.Account // Accountn ID
-	claims["auth"] = true        // Auth token can be used to access secure resources
+	claims["act"] = args.AccountId
+	claims["auth"] = true // Auth token can be used to access secure resources
 	claims["admin"] = args.Superuser
 
 	// Sign the JWT with a secret key
@@ -86,8 +86,8 @@ func GenerateRefreshToken(args GenerateTokenParams) (string, error) {
 	claims["nbf"] = time.Now().Unix()                     // Not before time
 
 	// Custom claims
-	claims["act"] = args.Account // Account ID
-	claims["auth"] = false       // Refresh token cannot be used to access secure resources
+	claims["act"] = args.AccountId
+	claims["auth"] = false // Refresh token cannot be used to access secure resources
 	claims["admin"] = args.Superuser
 
 	// Sign the JWT with a secret key
@@ -126,7 +126,7 @@ func ValidateToken(token string) (ValidateTokenResult, error) {
 
 	result := ValidateTokenResult{
 		Username:   claims["sub"].(string),
-		Account:    claims["act"].(string),
+		AccountId:  claims["act"].(string),
 		Authorized: claims["auth"].(bool),
 		Superuser:  claims["admin"].(bool),
 	}
