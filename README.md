@@ -126,3 +126,7 @@ Use the -j flag to junk directory names, otherwise lambda won't work.
 ## Postman collection
 
 https://api.postman.com/collections/3361055-c70b30a6-8b9c-4831-baf4-c4355487a3b3?access_key=PMAT-01GP6J4N4WYAZ7FTMP8Y9J3FG9
+
+## Helpful Go commands
+
+`go mod tidy -v` https://go.dev/ref/mod#go-mod-tidy

@@ -11,9 +11,10 @@ import (
 )
 
 type UserResult struct {
-	Username string
-	Email    string
-	Verified bool
+	AccountId string
+	Username  string
+	Email     string
+	Verified  bool
 }
 
 type FetchUsersResult struct {
@@ -33,6 +34,7 @@ func FetchUsers(limit int64, key string) (FetchUsersResult, error) {
 	}
 
 	projection := expression.NamesList(
+		expression.Name("AccountId"),
 		expression.Name("Username"),
 		expression.Name("Email"),
 		expression.Name("Verified"),

@@ -14,9 +14,10 @@ import (
 )
 
 type CreateUserParams struct {
-	Username string
-	Email    string
-	Password string
+	AccountId string
+	Username  string
+	Email     string
+	Password  string
 }
 
 type UserAttributes struct {
@@ -24,6 +25,7 @@ type UserAttributes struct {
 	SK        string `dynamodbav:"SK"`
 	GSI1PK    string `dynamodbav:"GSI1PK"`
 	GSI1SK    string `dynamodbav:"GSI1SK"`
+	AccountId string `dynamodbav:"AccountId"`
 	Username  string `dynamodbav:"Username"`
 	Email     string `dynamodbav:"Email"`
 	Password  string `dynamodbav:"Password"`
@@ -36,12 +38,14 @@ func CreateUser(args CreateUserParams) error {
 	tableName := os.Getenv("DYNAMODB_TABLE_NAME")
 
 	key := fmt.Sprintf("ACCOUNT#%s", strings.ToLower(args.Username))
+	gsi1Key := fmt.Sprintf("ID#%s", args.AccountId)
 
 	user := UserAttributes{
 		PK:        key,
 		SK:        key,
-		GSI1PK:    key, // TODO: this should be user id
-		GSI1SK:    key, // TODO: this should be user id
+		GSI1PK:    gsi1Key,
+		GSI1SK:    gsi1Key,
+		AccountId: args.AccountId,
 		Username:  args.Username,
 		Email:     args.Email,
 		Password:  args.Password,
