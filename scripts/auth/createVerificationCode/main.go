@@ -21,6 +21,7 @@ func main() {
 
 	if err := authModel.CreateVerificationCode(createUserArgs); err != nil {
 		fmt.Println(err.Error())
+		return
 	}
 
 	fmt.Println("Successfully created verification code")

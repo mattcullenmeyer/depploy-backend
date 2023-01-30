@@ -13,14 +13,15 @@ func main() {
 	passwordPtr := flag.String("p", "", "password")
 	flag.Parse()
 
-	createUserArgs := authModel.CreateUserParams{
+	createUserArgs := authModel.CreateEmailUserParams{
 		Username: *usernamePtr,
 		Email:    *emailPtr,
 		Password: *passwordPtr,
 	}
 
-	if err := authModel.CreateUser(createUserArgs); err != nil {
+	if err := authModel.CreateEmailUser(createUserArgs); err != nil {
 		fmt.Println(err.Error())
+		return
 	}
 
 	fmt.Println("Successfully created new user")

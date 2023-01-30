@@ -19,6 +19,7 @@ func main() {
 	result, err := userModel.FetchUsers(limit, lastEvaluatedKey)
 	if err != nil {
 		fmt.Println(err.Error())
+		return
 	}
 
 	fmt.Printf("%+v\n", result)

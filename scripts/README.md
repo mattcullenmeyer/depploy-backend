@@ -38,5 +38,6 @@ export DYNAMODB_ENDPOINT=dynamodb.us-east-1.amazonaws.com
 ### User scripts
 
 - Fetch user: `go run ./scripts/user/fetchUser/main.go -u=username`
+- Delete user: `go run ./scripts/user/deleteUser/main.go -u=username`
 - Fetch users: `go run ./scripts/user/fetchUsers/main.go -l=limit -k=next_key`
 - Update user superuser access: `go run ./scripts/user/updateUserSuperuser/main.go -u=username -a=true`

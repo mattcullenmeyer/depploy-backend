@@ -17,6 +17,7 @@ func main() {
 
 	if err := authModel.UpdateUserVerified(username, verified); err != nil {
 		fmt.Println(err.Error())
+		return
 	}
 
 	fmt.Println("Successfully updated user verification")

@@ -66,5 +66,5 @@ func RefreshToken(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"token": token, "refresh_token": refresh})
+	c.JSON(http.StatusOK, gin.H{"auth_token": token, "refresh_token": refresh})
 }

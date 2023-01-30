@@ -16,6 +16,7 @@ func main() {
 	result, err := authModel.FetchVerificationCode(otp)
 	if err != nil {
 		fmt.Println(err.Error())
+		return
 	}
 
 	fmt.Printf("%+v\n", result)
