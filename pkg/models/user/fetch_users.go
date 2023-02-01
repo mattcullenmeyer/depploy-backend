@@ -10,6 +10,11 @@ import (
 	"github.com/mattcullenmeyer/depploy-backend/pkg/utils"
 )
 
+type FetchUsersParams struct {
+	Limit int64
+	Key   string
+}
+
 // Update the dynamodb projection below if you edit the UserResult type struct here
 type UserResult struct {
 	PK                 string
@@ -28,13 +33,13 @@ type FetchUsersResult struct {
 	Next  string
 }
 
-func FetchUsers(limit int64, key string) (FetchUsersResult, error) {
+func FetchUsers(args FetchUsersParams) (FetchUsersResult, error) {
 	svc := utils.DynamodbClient()
 	tableName := os.Getenv("DYNAMODB_TABLE_NAME")
 
 	emptyResult := FetchUsersResult{}
 
-	exclusiveStartKey, err := utils.DecodeLastEvaluatedKey(key)
+	exclusiveStartKey, err := utils.DecodeLastEvaluatedKey(args.Key)
 	if err != nil {
 		return emptyResult, err
 	}
@@ -65,10 +70,10 @@ func FetchUsers(limit int64, key string) (FetchUsersResult, error) {
 		ExpressionAttributeNames:  expr.Names(),
 		ExpressionAttributeValues: expr.Values(),
 		ProjectionExpression:      expr.Projection(),
-		Limit:                     aws.Int64(limit),
+		Limit:                     aws.Int64(args.Limit),
 	}
 
-	if key != "" {
+	if args.Key != "" {
 		input.ExclusiveStartKey = exclusiveStartKey
 	}
 

@@ -1,8 +1,9 @@
-package authModel
+package userModel
 
 import (
+	"fmt"
 	"os"
-	"time"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
@@ -11,41 +12,44 @@ import (
 	"github.com/mattcullenmeyer/depploy-backend/pkg/utils"
 )
 
-type FetchVerificationCodeParams struct {
-	Otp string
+type FetchUserByUsernameParams struct {
+	Username string
 }
 
-type QueryAttributeValues struct {
-	AccountId string `dynamodbav:"AccountId"`
+type GetUserByUsernameItemAttributeValues struct {
 	Username  string `dynamodbav:"Username"`
+	AccountId string `dynamodbav:"AccountId"`
 	Email     string `dynamodbav:"Email"`
+	Password  string `dynamodbav:"Password"`
+	CreatedAt string `dynamodbav:"CreatedAt"`
+	Verified  bool   `dynamodbav:"Verified"`
+	Superuser bool   `dynamodbav:"Superuser"`
 }
 
-type FetchVerificationCodeResult struct {
-	AccountId string
+type FetchUserByUsernameResult struct {
 	Username  string
+	AccountId string
 	Email     string
+	Password  string
+	CreatedAt string
+	Verified  bool
+	Superuser bool
 }
 
-func FetchVerificationCode(args FetchVerificationCodeParams) (FetchVerificationCodeResult, error) {
+func FetchUserByUsername(args FetchUserByUsernameParams) (FetchUserByUsernameResult, error) {
 	svc := utils.DynamodbClient()
 	tableName := os.Getenv("DYNAMODB_TABLE_NAME")
 
-	emptyResult := FetchVerificationCodeResult{}
+	emptyResult := FetchUserByUsernameResult{}
 
-	now := time.Now().Unix()
+	accountNameKey := fmt.Sprintf("ACCOUNT#%s", strings.ToLower(args.Username))
 
-	pkCondition := expression.Key("PK").Equal(expression.Value(args.Otp))
-	skCondition := expression.Key("SK").Equal(expression.Value(args.Otp))
+	pkCondition := expression.Key("GSI1PK").Equal(expression.Value(accountNameKey))
+	skCondition := expression.Key("GSI1SK").Equal(expression.Value(accountNameKey))
 	keyCondition := pkCondition.And(skCondition)
 
-	// Only include verification codes where expiration is in the future
-	filter := expression.Name("TTL").GreaterThan(expression.Value(now))
-
-	// Combine the key condition and filter together as a DynamoDB expression builder
 	expr, err := expression.NewBuilder().
 		WithKeyCondition(keyCondition).
-		WithFilter(filter).
 		Build()
 	if err != nil {
 		return emptyResult, err
@@ -53,8 +57,8 @@ func FetchVerificationCode(args FetchVerificationCodeParams) (FetchVerificationC
 
 	input := &dynamodb.QueryInput{
 		TableName:                 aws.String(tableName),
+		IndexName:                 aws.String("GSI1"),
 		KeyConditionExpression:    expr.KeyCondition(),
-		FilterExpression:          expr.Filter(),
 		ExpressionAttributeNames:  expr.Names(),
 		ExpressionAttributeValues: expr.Values(),
 	}
@@ -68,14 +72,14 @@ func FetchVerificationCode(args FetchVerificationCodeParams) (FetchVerificationC
 		return emptyResult, nil
 	}
 
-	attributeValues := []QueryAttributeValues{}
+	attributeValues := []GetUserByUsernameItemAttributeValues{}
 
 	err = dynamodbattribute.UnmarshalListOfMaps(queryOutput.Items, &attributeValues)
 	if err != nil {
 		return emptyResult, err
 	}
 
-	result := FetchVerificationCodeResult(attributeValues[0])
+	result := FetchUserByUsernameResult(attributeValues[0])
 
 	return result, nil
 }

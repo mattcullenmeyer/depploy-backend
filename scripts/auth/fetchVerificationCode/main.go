@@ -11,9 +11,11 @@ func main() {
 	otpPtr := flag.String("c", "", "verification code")
 	flag.Parse()
 
-	otp := *otpPtr
+	fetchVerificationCodeArgs := authModel.FetchVerificationCodeParams{
+		Otp: *otpPtr,
+	}
 
-	result, err := authModel.FetchVerificationCode(otp)
+	result, err := authModel.FetchVerificationCode(fetchVerificationCodeArgs)
 	if err != nil {
 		fmt.Println(err.Error())
 		return

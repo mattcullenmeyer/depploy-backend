@@ -11,14 +11,18 @@ import (
 func CheckUsernameAvailability(c *gin.Context) {
 	username := c.Params.ByName("username")
 
-	user, err := userModel.FetchUser(username)
+	fetchUserByUsernameArgs := userModel.FetchUserByUsernameParams{
+		Username: username,
+	}
+
+	user, err := userModel.FetchUserByUsername(fetchUserByUsernameArgs)
 	if err != nil {
 		log.Println(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch username"})
 		return
 	}
 
-	if user == (userModel.FetchUserResult{}) {
+	if user == (userModel.FetchUserByUsernameResult{}) {
 		c.Status(http.StatusNoContent)
 		return
 	}

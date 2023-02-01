@@ -10,21 +10,25 @@ import (
 	"github.com/mattcullenmeyer/depploy-backend/pkg/utils"
 )
 
+type DeleteUserParams struct {
+	AccountId string
+}
+
 // WARNING: Do NOT add this to an API endpoint for security reasons
 // This is only used through CLI script
-func DeleteUser(username string) error {
+func DeleteUser(args DeleteUserParams) error {
 	svc := utils.DynamodbClient()
 	tableName := os.Getenv("DYNAMODB_TABLE_NAME")
 
-	key := fmt.Sprintf("ACCOUNT#%s", strings.ToLower(username))
+	accountIdKey := fmt.Sprintf("ID#%s", strings.ToLower(args.AccountId))
 
 	input := &dynamodb.DeleteItemInput{
 		Key: map[string]*dynamodb.AttributeValue{
 			"PK": {
-				S: aws.String(key),
+				S: aws.String(accountIdKey),
 			},
 			"SK": {
-				S: aws.String(key),
+				S: aws.String(accountIdKey),
 			},
 		},
 		TableName: aws.String(tableName),

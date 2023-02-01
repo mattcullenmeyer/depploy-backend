@@ -12,4 +12,5 @@ func UserRoute(router *gin.RouterGroup) {
 	router.GET("/username/:username", userController.CheckUsernameAvailability)
 	router.GET("/details", middleware.TokenAuth(), userController.GetUser)
 	router.GET("/users", middleware.TokenAuth(), middleware.SuperuserAuth(), userController.GetUsers)
+	router.PATCH("/username", middleware.TokenAuth(), userController.UpdateUsername)
 }

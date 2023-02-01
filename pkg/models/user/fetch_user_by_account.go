@@ -11,7 +11,11 @@ import (
 	"github.com/mattcullenmeyer/depploy-backend/pkg/utils"
 )
 
-type GetItemAttributeValues struct {
+type FetchUserByAccountParams struct {
+	AccountId string
+}
+
+type GetUserByAccountItemAttributeValues struct {
 	Username  string `dynamodbav:"Username"`
 	AccountId string `dynamodbav:"AccountId"`
 	Email     string `dynamodbav:"Email"`
@@ -21,7 +25,7 @@ type GetItemAttributeValues struct {
 	Superuser bool   `dynamodbav:"Superuser"`
 }
 
-type FetchUserResult struct {
+type FetchUserByAccountResult struct {
 	Username  string
 	AccountId string
 	Email     string
@@ -31,22 +35,22 @@ type FetchUserResult struct {
 	Superuser bool
 }
 
-func FetchUser(username string) (FetchUserResult, error) {
+func FetchUserByAccount(args FetchUserByAccountParams) (FetchUserByAccountResult, error) {
 	svc := utils.DynamodbClient()
 	tableName := os.Getenv("DYNAMODB_TABLE_NAME")
 
-	emptyResult := FetchUserResult{}
+	emptyResult := FetchUserByAccountResult{}
 
-	key := fmt.Sprintf("ACCOUNT#%s", strings.ToLower(username))
+	accountIdKey := fmt.Sprintf("ID#%s", strings.ToLower(args.AccountId))
 
 	input := &dynamodb.GetItemInput{
 		TableName: aws.String(tableName),
 		Key: map[string]*dynamodb.AttributeValue{
 			"PK": {
-				S: aws.String(key),
+				S: aws.String(accountIdKey),
 			},
 			"SK": {
-				S: aws.String(key),
+				S: aws.String(accountIdKey),
 			},
 		},
 	}
@@ -60,14 +64,14 @@ func FetchUser(username string) (FetchUserResult, error) {
 		return emptyResult, nil
 	}
 
-	attributeValues := GetItemAttributeValues{}
+	attributeValues := GetUserByAccountItemAttributeValues{}
 
 	err = dynamodbattribute.UnmarshalMap(getItemOutput.Item, &attributeValues)
 	if err != nil {
 		return emptyResult, err
 	}
 
-	result := FetchUserResult(attributeValues)
+	result := FetchUserByAccountResult(attributeValues)
 
 	return result, nil
 }

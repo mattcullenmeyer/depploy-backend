@@ -1,4 +1,4 @@
-package authModel
+package userModel
 
 import (
 	"fmt"
@@ -10,21 +10,25 @@ import (
 	"github.com/mattcullenmeyer/depploy-backend/pkg/utils"
 )
 
-type UpdateUserVerifiedParams struct {
+type UpdateAccountUsernameParams struct {
+	Username  string
 	AccountId string
-	Verified  bool
 }
 
-func UpdateUserVerified(args UpdateUserVerifiedParams) error {
+func UpdateAccountUsername(args UpdateAccountUsernameParams) error {
 	svc := utils.DynamodbClient()
 	tableName := os.Getenv("DYNAMODB_TABLE_NAME")
 
 	accountIdKey := fmt.Sprintf("ID#%s", strings.ToLower(args.AccountId))
+	accountNameKey := fmt.Sprintf("ACCOUNT#%s", strings.ToLower(args.Username))
 
 	input := &dynamodb.UpdateItemInput{
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
-			":verified": {
-				BOOL: aws.Bool(args.Verified),
+			":gsi1pk": {
+				S: aws.String(accountNameKey),
+			},
+			":gsi1sk": {
+				S: aws.String(accountNameKey),
 			},
 		},
 		TableName: aws.String(tableName),
@@ -36,7 +40,7 @@ func UpdateUserVerified(args UpdateUserVerifiedParams) error {
 				S: aws.String(accountIdKey),
 			},
 		},
-		UpdateExpression: aws.String("set Verified = :verified"),
+		UpdateExpression: aws.String("set GSI1PK = :gsi1pk, GSI1SK = :gsi1sk"),
 	}
 
 	_, err := svc.UpdateItem(input)

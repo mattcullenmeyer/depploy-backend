@@ -25,14 +25,18 @@ func ResendEmail(c *gin.Context) {
 
 	username := payload.Username
 
-	user, err := userModel.FetchUser(username)
+	fetchUserByUsernameArgs := userModel.FetchUserByUsernameParams{
+		Username: username,
+	}
+
+	user, err := userModel.FetchUserByUsername(fetchUserByUsernameArgs)
 	if err != nil {
 		log.Println(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch user"})
 		return
 	}
 
-	if user == (userModel.FetchUserResult{}) {
+	if user == (userModel.FetchUserByUsernameResult{}) {
 		// User does not exist
 		// Return status ok since we don't want to communicate that the user doesn't exist
 		log.Printf("Cannot resend email verification because '%s' does not exist", username)

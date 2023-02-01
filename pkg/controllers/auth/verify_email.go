@@ -22,9 +22,11 @@ func VerifyEmail(c *gin.Context) {
 		return
 	}
 
-	verificationCode := payload.VerificationCode
+	fetchVerificationCodeArgs := authModel.FetchVerificationCodeParams{
+		Otp: payload.VerificationCode,
+	}
 
-	result, err := authModel.FetchVerificationCode(verificationCode)
+	result, err := authModel.FetchVerificationCode(fetchVerificationCodeArgs)
 	if err != nil {
 		log.Println(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify email"})
@@ -36,7 +38,12 @@ func VerifyEmail(c *gin.Context) {
 		return
 	}
 
-	if err := authModel.UpdateUserVerified(result.Username, true); err != nil {
+	updateUserVerifiedParams := authModel.UpdateUserVerifiedParams{
+		AccountId: result.AccountId,
+		Verified:  true,
+	}
+
+	if err := authModel.UpdateUserVerified(updateUserVerifiedParams); err != nil {
 		log.Println(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify email"})
 		return

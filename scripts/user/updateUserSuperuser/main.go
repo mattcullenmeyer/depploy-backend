@@ -8,14 +8,16 @@ import (
 )
 
 func main() {
-	usernamePtr := flag.String("u", "", "username")
-	accessPtr := flag.Bool("a", false, "superuser admin access boolean")
+	accountPtr := flag.String("a", "", "account id")
+	accessPtr := flag.Bool("s", false, "superuser admin access boolean")
 	flag.Parse()
 
-	username := *usernamePtr
-	access := *accessPtr
+	updateUserSuperuserArgs := userModel.UpdateUserSuperuserParams{
+		AccountId: *accountPtr,
+		Access:    *accessPtr,
+	}
 
-	if err := userModel.UpdateUserSuperuser(username, access); err != nil {
+	if err := userModel.UpdateUserSuperuser(updateUserSuperuserArgs); err != nil {
 		fmt.Println(err.Error())
 		return
 	}

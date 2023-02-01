@@ -3,7 +3,6 @@ package authModel
 import (
 	"errors"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -13,14 +12,16 @@ import (
 )
 
 type CreateVerificationCodeParams struct {
-	Otp      string
-	Username string
-	Email    string
+	Otp       string
+	AccountId string
+	Username  string
+	Email     string
 }
 
 type VerificationCodeAttributes struct {
 	PK         string `dynamodbav:"PK"`
 	SK         string `dynamodbav:"SK"`
+	AccountId  string `dynamodbav:"AccountId"`
 	Username   string `dynamodbav:"Username"`
 	Email      string `dynamodbav:"Email"`
 	Expiration string `dynamodbav:"Expiration"`
@@ -36,7 +37,8 @@ func CreateVerificationCode(args CreateVerificationCodeParams) error {
 	verificationCode := VerificationCodeAttributes{
 		PK:         args.Otp,
 		SK:         args.Otp,
-		Username:   strings.ToLower(args.Username),
+		AccountId:  args.AccountId,
+		Username:   args.Username,
 		Email:      args.Email,
 		Expiration: ttl.Format(time.RFC3339), // ISO8601 format for human readability
 		TTL:        ttl.Unix(),

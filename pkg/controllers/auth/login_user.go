@@ -25,7 +25,11 @@ func LoginUser(c *gin.Context) {
 
 	username := payload.Username
 
-	user, err := userModel.FetchUser(username)
+	fetchUserByUsernameArgs := userModel.FetchUserByUsernameParams{
+		Username: username,
+	}
+
+	user, err := userModel.FetchUserByUsername(fetchUserByUsernameArgs)
 	if err != nil {
 		log.Println(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to log in user"})
@@ -33,7 +37,7 @@ func LoginUser(c *gin.Context) {
 	}
 
 	// Return 400 status code
-	if user == (userModel.FetchUserResult{}) {
+	if user == (userModel.FetchUserByUsernameResult{}) {
 		// User does not exist
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid username or password"})
 		return

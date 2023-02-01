@@ -39,14 +39,14 @@ func CreateGoogleUser(args CreateGoogleUserParams) error {
 	svc := utils.DynamodbClient()
 	tableName := os.Getenv("DYNAMODB_TABLE_NAME")
 
-	key := fmt.Sprintf("ACCOUNT#%s", strings.ToLower(args.AccountId))
-	gsi1Key := fmt.Sprintf("ID#%s", args.AccountId)
+	accountIdKey := fmt.Sprintf("ID#%s", strings.ToLower(args.AccountId))
+	accountNameKey := fmt.Sprintf("ACCOUNT#%s", strings.ToLower(args.AccountId))
 
 	user := GoogleUserAttributes{
-		PK:                 key,
-		SK:                 key,
-		GSI1PK:             gsi1Key,
-		GSI1SK:             gsi1Key,
+		PK:                 accountIdKey,
+		SK:                 accountIdKey,
+		GSI1PK:             accountNameKey,
+		GSI1SK:             accountNameKey,
 		Username:           "",
 		AccountId:          args.AccountId,
 		Email:              args.Email,
@@ -66,7 +66,7 @@ func CreateGoogleUser(args CreateGoogleUserParams) error {
 	input := &dynamodb.PutItemInput{
 		TableName:           aws.String(tableName),
 		Item:                item,
-		ConditionExpression: aws.String("attribute_not_exists(PK)"),
+		ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(GSI1PK)"),
 	}
 
 	_, err = svc.PutItem(input)

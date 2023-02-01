@@ -11,15 +11,15 @@ func main() {
 	accountPtr := flag.String("a", "", "account id")
 	flag.Parse()
 
-	deleteUserArgs := userModel.DeleteUserParams{
+	fetchUserByAccountArgs := userModel.FetchUserByAccountParams{
 		AccountId: *accountPtr,
 	}
 
-	err := userModel.DeleteUser(deleteUserArgs)
+	result, err := userModel.FetchUserByAccount(fetchUserByAccountArgs)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
 
-	fmt.Println("Successfully deleted user")
+	fmt.Printf("%+v\n", result)
 }

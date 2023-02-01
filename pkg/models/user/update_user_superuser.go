@@ -10,27 +10,32 @@ import (
 	"github.com/mattcullenmeyer/depploy-backend/pkg/utils"
 )
 
+type UpdateUserSuperuserParams struct {
+	AccountId string
+	Access    bool
+}
+
 // WARNING: Do NOT add this to an API endpoint for security reasons
 // This is only used through CLI script
-func UpdateUserSuperuser(username string, access bool) error {
+func UpdateUserSuperuser(args UpdateUserSuperuserParams) error {
 	svc := utils.DynamodbClient()
 	tableName := os.Getenv("DYNAMODB_TABLE_NAME")
 
-	key := fmt.Sprintf("ACCOUNT#%s", strings.ToLower(username))
+	accountIdKey := fmt.Sprintf("ID#%s", strings.ToLower(args.AccountId))
 
 	input := &dynamodb.UpdateItemInput{
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 			":superuser": {
-				BOOL: aws.Bool(access),
+				BOOL: aws.Bool(args.Access),
 			},
 		},
 		TableName: aws.String(tableName),
 		Key: map[string]*dynamodb.AttributeValue{
 			"PK": {
-				S: aws.String(key),
+				S: aws.String(accountIdKey),
 			},
 			"SK": {
-				S: aws.String(key),
+				S: aws.String(accountIdKey),
 			},
 		},
 		UpdateExpression: aws.String("set Superuser = :superuser"),
