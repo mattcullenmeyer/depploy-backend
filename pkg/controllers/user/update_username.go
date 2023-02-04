@@ -32,5 +32,5 @@ func UpdateUsername(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Successfully updated username"})
+	c.JSON(http.StatusOK, gin.H{"message": "Updated username successfully"})
 }

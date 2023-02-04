@@ -107,6 +107,7 @@ resource "aws_lambda_function" "main" {
       ENVIRONMENT         = "production"
       COOKIE_DOMAIN       = "*.depploy.io"
       CONSOLE_HOST        = "https://console.depploy.io"
+      BACKEND_HOST        = "https://api.depploy.io"
     }
   }
 }

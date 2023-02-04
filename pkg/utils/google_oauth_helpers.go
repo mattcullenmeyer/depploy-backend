@@ -28,12 +28,8 @@ func GetOauthConfig() (*oauth2.Config, error) {
 		return &oauth2.Config{}, err
 	}
 
-	domain := "https://api.depploy.io"
-	environment := os.Getenv("ENVIRONMENT")
-	if environment == "development" {
-		domain = "http://localhost:8080"
-	}
-	redirectUrl := fmt.Sprintf("%s/auth/google", domain)
+	backendHost := os.Getenv("BACKEND_HOST")
+	redirectUrl := fmt.Sprintf("%s/auth/google", backendHost)
 
 	conf := &oauth2.Config{
 		ClientID:     clientId,
@@ -81,8 +77,6 @@ func GetGoogleUserData(token *oauth2.Token) (GoogleUserResult, error) {
 	if err != nil {
 		return emptyResult, err
 	}
-
-	// fmt.Printf("%s", string(respBody))
 
 	googleUserResult := GoogleUserResult{}
 
