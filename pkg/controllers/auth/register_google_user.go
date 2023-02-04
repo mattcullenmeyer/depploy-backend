@@ -15,14 +15,7 @@ func GoogleOAuth(c *gin.Context) {
 	code := c.Query("code")
 	// Also returns a "scope" query param
 
-	domain := "*depploy"
-	redirectLocation := "https://console.depploy.io"
-
-	environment := os.Getenv("ENVIRONMENT")
-	if environment == "development" {
-		domain = "localhost"
-		redirectLocation = "http://localhost:3000"
-	}
+	redirectLocation := os.Getenv("CONSOLE_HOST")
 
 	token, err := utils.GetGoogleOauthToken(code)
 	if err != nil {
@@ -52,7 +45,6 @@ func GoogleOAuth(c *gin.Context) {
 	}
 
 	generateTokenArgs := utils.GenerateTokenParams{
-		Username:  "",
 		AccountId: user.AccountId,
 		Superuser: false,
 	}
@@ -74,8 +66,10 @@ func GoogleOAuth(c *gin.Context) {
 	in15Minutes := 15 * 60
 	in24Hours := 24 * 60 * 60
 
-	c.SetCookie("auth_token", authToken, in15Minutes, "/", domain, true, false)
-	c.SetCookie("refresh_token", refreshToken, in24Hours, "/", domain, true, false)
+	cookieDomain := os.Getenv("COOKIE_DOMAIN")
+
+	c.SetCookie("auth_token", authToken, in15Minutes, "/", cookieDomain, true, false)
+	c.SetCookie("refresh_token", refreshToken, in24Hours, "/", cookieDomain, true, false)
 
 	c.Redirect(http.StatusTemporaryRedirect, fmt.Sprintf("%s/signup/username", redirectLocation))
 }

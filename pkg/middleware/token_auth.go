@@ -39,7 +39,6 @@ func TokenAuth() gin.HandlerFunc {
 			return
 		}
 
-		c.Set("username", claims.Username)
 		c.Set("accountId", claims.AccountId)
 		c.Set("superuser", claims.Superuser)
 

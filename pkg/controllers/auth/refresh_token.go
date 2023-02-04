@@ -49,7 +49,6 @@ func RefreshToken(c *gin.Context) {
 	}
 
 	generateTokenArgs := utils.GenerateTokenParams{
-		Username:  claims.Username,
 		AccountId: user.AccountId,
 		Superuser: user.Superuser,
 	}

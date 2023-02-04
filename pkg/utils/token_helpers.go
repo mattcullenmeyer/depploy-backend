@@ -8,13 +8,11 @@ import (
 )
 
 type GenerateTokenParams struct {
-	Username  string
 	AccountId string
 	Superuser bool
 }
 
 type ValidateTokenResult struct {
-	Username   string
 	AccountId  string
 	Authorized bool
 	Superuser  bool
@@ -46,13 +44,12 @@ func GenerateToken(args GenerateTokenParams) (string, error) {
 	claims := token.Claims.(jwt.MapClaims)
 
 	// Stardard registered claims
-	claims["sub"] = args.Username                           // Subject of the JWT (user)
+	claims["sub"] = args.AccountId                          // Subject of the JWT (account)
 	claims["exp"] = time.Now().Add(time.Minute * 15).Unix() // Expiration time
 	claims["iat"] = time.Now().Unix()                       // Issued at time
 	claims["nbf"] = time.Now().Unix()                       // Not before time
 
 	// Custom claims
-	claims["act"] = args.AccountId
 	claims["auth"] = true // Auth token can be used to access secure resources
 	claims["admin"] = args.Superuser
 
@@ -80,13 +77,12 @@ func GenerateRefreshToken(args GenerateTokenParams) (string, error) {
 	claims := token.Claims.(jwt.MapClaims)
 
 	// Stardard registered claims
-	claims["sub"] = args.Username                         // Subject of the JWT (user)
+	claims["sub"] = args.AccountId                        // Subject of the JWT (account)
 	claims["exp"] = time.Now().Add(time.Hour * 24).Unix() // Expiration time
 	claims["iat"] = time.Now().Unix()                     // Issued at time
 	claims["nbf"] = time.Now().Unix()                     // Not before time
 
 	// Custom claims
-	claims["act"] = args.AccountId
 	claims["auth"] = false // Refresh token cannot be used to access secure resources
 	claims["admin"] = args.Superuser
 
@@ -125,8 +121,7 @@ func ValidateToken(token string) (ValidateTokenResult, error) {
 	}
 
 	result := ValidateTokenResult{
-		Username:   claims["sub"].(string),
-		AccountId:  claims["act"].(string),
+		AccountId:  claims["sub"].(string),
 		Authorized: claims["auth"].(bool),
 		Superuser:  claims["admin"].(bool),
 	}

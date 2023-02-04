@@ -30,6 +30,9 @@ func UpdateAccountUsername(args UpdateAccountUsernameParams) error {
 			":gsi1sk": {
 				S: aws.String(accountNameKey),
 			},
+			":username": {
+				S: aws.String(args.Username),
+			},
 		},
 		TableName: aws.String(tableName),
 		Key: map[string]*dynamodb.AttributeValue{
@@ -40,7 +43,7 @@ func UpdateAccountUsername(args UpdateAccountUsernameParams) error {
 				S: aws.String(accountIdKey),
 			},
 		},
-		UpdateExpression: aws.String("set GSI1PK = :gsi1pk, GSI1SK = :gsi1sk"),
+		UpdateExpression: aws.String("set GSI1PK = :gsi1pk, GSI1SK = :gsi1sk, Username = :username"),
 	}
 
 	_, err := svc.UpdateItem(input)

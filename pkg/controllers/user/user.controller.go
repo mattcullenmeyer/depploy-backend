@@ -56,8 +56,8 @@ func Username(c *gin.Context) {
 }
 
 func GetUser(c *gin.Context) {
-	username := c.MustGet("username")
+	// username := c.MustGet("username")
 	accountId := c.MustGet("accountId")
 
-	c.JSON(http.StatusOK, gin.H{"account": accountId, "username": username})
+	c.JSON(http.StatusOK, gin.H{"account": accountId})
 }

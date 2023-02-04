@@ -105,6 +105,8 @@ resource "aws_lambda_function" "main" {
     variables = {
       DYNAMODB_TABLE_NAME = "depploy-users-prod"
       ENVIRONMENT         = "production"
+      COOKIE_DOMAIN       = "*.depploy.io"
+      CONSOLE_HOST        = "https://console.depploy.io"
     }
   }
 }
