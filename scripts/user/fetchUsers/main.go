@@ -14,11 +14,16 @@ func main() {
 	flag.Parse()
 
 	limit, _ := strconv.ParseInt(*limitPtr, 10, 64)
-	lastEvaluatedKey := *lastKeyPtr
 
-	result, err := userModel.FetchUsers(limit, lastEvaluatedKey)
+	fetchUsersArgs := userModel.FetchUsersParams{
+		Limit: limit,
+		Key:   *lastKeyPtr,
+	}
+
+	result, err := userModel.FetchUsers(fetchUsersArgs)
 	if err != nil {
 		fmt.Println(err.Error())
+		return
 	}
 
 	fmt.Printf("%+v\n", result)

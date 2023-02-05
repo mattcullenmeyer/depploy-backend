@@ -11,11 +11,14 @@ func main() {
 	usernamePtr := flag.String("u", "", "username")
 	flag.Parse()
 
-	username := *usernamePtr
+	fetchUserByUsernameArgs := userModel.FetchUserByUsernameParams{
+		Username: *usernamePtr,
+	}
 
-	result, err := userModel.FetchUser(username)
+	result, err := userModel.FetchUserByUsername(fetchUserByUsernameArgs)
 	if err != nil {
 		fmt.Println(err.Error())
+		return
 	}
 
 	fmt.Printf("%+v\n", result)

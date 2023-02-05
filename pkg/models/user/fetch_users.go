@@ -10,13 +10,22 @@ import (
 	"github.com/mattcullenmeyer/depploy-backend/pkg/utils"
 )
 
+type FetchUsersParams struct {
+	Limit int64
+	Key   string
+}
+
 // Update the dynamodb projection below if you edit the UserResult type struct here
 type UserResult struct {
-	Username  string
-	AccountId string
-	Email     string
-	Verified  bool
-	Superuser bool
+	PK                 string
+	GSI1PK             string
+	Username           string
+	AccountId          string
+	Email              string
+	CreatedAt          string
+	Verified           bool
+	Superuser          bool
+	RegistrationMethod string
 }
 
 type FetchUsersResult struct {
@@ -24,24 +33,28 @@ type FetchUsersResult struct {
 	Next  string
 }
 
-func FetchUsers(limit int64, key string) (FetchUsersResult, error) {
+func FetchUsers(args FetchUsersParams) (FetchUsersResult, error) {
 	svc := utils.DynamodbClient()
 	tableName := os.Getenv("DYNAMODB_TABLE_NAME")
 
 	emptyResult := FetchUsersResult{}
 
-	exclusiveStartKey, err := utils.DecodeLastEvaluatedKey(key)
+	exclusiveStartKey, err := utils.DecodeLastEvaluatedKey(args.Key)
 	if err != nil {
 		return emptyResult, err
 	}
 
 	// update the UserResult struct type above if you edit the projection here
 	projection := expression.NamesList(
+		expression.Name("PK"),
+		expression.Name("GSI1PK"),
 		expression.Name("Username"),
 		expression.Name("AccountId"),
 		expression.Name("Email"),
+		expression.Name("CreatedAt"),
 		expression.Name("Verified"),
 		expression.Name("Superuser"),
+		expression.Name("RegistrationMethod"),
 	)
 
 	expr, err := expression.NewBuilder().
@@ -57,10 +70,10 @@ func FetchUsers(limit int64, key string) (FetchUsersResult, error) {
 		ExpressionAttributeNames:  expr.Names(),
 		ExpressionAttributeValues: expr.Values(),
 		ProjectionExpression:      expr.Projection(),
-		Limit:                     aws.Int64(limit),
+		Limit:                     aws.Int64(args.Limit),
 	}
 
-	if key != "" {
+	if args.Key != "" {
 		input.ExclusiveStartKey = exclusiveStartKey
 	}
 

@@ -20,7 +20,12 @@ func GetUsers(c *gin.Context) {
 		return
 	}
 
-	result, err := userModel.FetchUsers(limit, lastEvaluatedKey)
+	fetchUsersArgs := userModel.FetchUsersParams{
+		Limit: limit,
+		Key:   lastEvaluatedKey,
+	}
+
+	result, err := userModel.FetchUsers(fetchUsersArgs)
 	if err != nil {
 		log.Println(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch users"})

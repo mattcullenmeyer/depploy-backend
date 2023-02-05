@@ -30,9 +30,11 @@ func RefreshToken(c *gin.Context) {
 		return
 	}
 
-	username := claims.Username
+	fetchUserByAccountArgs := userModel.FetchUserByAccountParams{
+		AccountId: claims.AccountId,
+	}
 
-	user, err := userModel.FetchUser(username)
+	user, err := userModel.FetchUserByAccount(fetchUserByAccountArgs)
 	if err != nil {
 		log.Println(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch user"})
@@ -47,7 +49,6 @@ func RefreshToken(c *gin.Context) {
 	}
 
 	generateTokenArgs := utils.GenerateTokenParams{
-		Username:  claims.Username,
 		AccountId: user.AccountId,
 		Superuser: user.Superuser,
 	}
@@ -66,5 +67,5 @@ func RefreshToken(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"token": token, "refresh_token": refresh})
+	c.JSON(http.StatusOK, gin.H{"auth_token": token, "refresh_token": refresh})
 }

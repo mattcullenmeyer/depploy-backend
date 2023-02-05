@@ -1,4 +1,4 @@
-package authModel
+package userModel
 
 import (
 	"fmt"
@@ -10,24 +10,19 @@ import (
 	"github.com/mattcullenmeyer/depploy-backend/pkg/utils"
 )
 
-type UpdateUserVerifiedParams struct {
+type DeleteUserParams struct {
 	AccountId string
-	Verified  bool
 }
 
-func UpdateUserVerified(args UpdateUserVerifiedParams) error {
+// WARNING: Do NOT add this to an API endpoint for security reasons
+// This is only used through CLI script
+func DeleteUser(args DeleteUserParams) error {
 	svc := utils.DynamodbClient()
 	tableName := os.Getenv("DYNAMODB_TABLE_NAME")
 
 	accountIdKey := fmt.Sprintf("ID#%s", strings.ToLower(args.AccountId))
 
-	input := &dynamodb.UpdateItemInput{
-		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
-			":verified": {
-				BOOL: aws.Bool(args.Verified),
-			},
-		},
-		TableName: aws.String(tableName),
+	input := &dynamodb.DeleteItemInput{
 		Key: map[string]*dynamodb.AttributeValue{
 			"PK": {
 				S: aws.String(accountIdKey),
@@ -36,10 +31,10 @@ func UpdateUserVerified(args UpdateUserVerifiedParams) error {
 				S: aws.String(accountIdKey),
 			},
 		},
-		UpdateExpression: aws.String("set Verified = :verified"),
+		TableName: aws.String(tableName),
 	}
 
-	_, err := svc.UpdateItem(input)
+	_, err := svc.DeleteItem(input)
 	if err != nil {
 		return err
 	}

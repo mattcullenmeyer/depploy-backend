@@ -10,7 +10,7 @@ import (
 	"github.com/segmentio/ksuid"
 )
 
-type RegisterUserPayload struct {
+type RegisterEmailUserPayload struct {
 	Username string `json:"username" binding:"required"`
 	Email    string `json:"email" binding:"required"`
 	Password string `json:"password" binding:"required"`
@@ -18,8 +18,8 @@ type RegisterUserPayload struct {
 
 // https://pkg.go.dev/github.com/gin-gonic/gin#section-readme
 // See "Model binding and validation" section
-func RegisterUser(c *gin.Context) {
-	var payload RegisterUserPayload
+func RegisterEmailUser(c *gin.Context) {
+	var payload RegisterEmailUserPayload
 
 	if err := c.ShouldBindJSON(&payload); err != nil {
 		log.Println(err.Error())
@@ -38,14 +38,14 @@ func RegisterUser(c *gin.Context) {
 
 	accountId := ksuid.New()
 
-	createUserArgs := authModel.CreateUserParams{
-		Username:  username,
+	createEmailUserArgs := authModel.CreateEmailUserParams{
 		AccountId: accountId.String(),
+		Username:  username,
 		Email:     email,
 		Password:  hashedPassword,
 	}
 
-	if err := authModel.CreateUser(createUserArgs); err != nil {
+	if err := authModel.CreateEmailUser(createEmailUserArgs); err != nil {
 		log.Println(err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Username already exists"})
 		return
