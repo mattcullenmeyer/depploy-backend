@@ -112,9 +112,9 @@ aws dynamodb get-item \
   --region us-east-1
 ```
 
-## Create superuser
+## Create Super Admin User
 
-See scripts (updateUserSuperuser)
+See scripts (updateUserSuperAdmin)
 
 ## Lambda deployment
 

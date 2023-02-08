@@ -9,18 +9,18 @@ import (
 
 func main() {
 	accountPtr := flag.String("a", "", "account id")
-	accessPtr := flag.Bool("s", false, "superuser admin access boolean")
+	accessPtr := flag.Bool("s", false, "super admin access boolean")
 	flag.Parse()
 
-	updateUserSuperuserArgs := userModel.UpdateUserSuperuserParams{
+	updateUserSuperAdminArgs := userModel.UpdateUserSuperAdminParams{
 		AccountId: *accountPtr,
 		Access:    *accessPtr,
 	}
 
-	if err := userModel.UpdateUserSuperuser(updateUserSuperuserArgs); err != nil {
+	if err := userModel.UpdateUserSuperAdmin(updateUserSuperAdminArgs); err != nil {
 		fmt.Println(err.Error())
 		return
 	}
 
-	fmt.Println("Successfully updated superuser admin access")
+	fmt.Println("Successfully updated super admin access")
 }

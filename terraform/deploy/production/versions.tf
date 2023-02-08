@@ -1,13 +1,12 @@
 terraform {
-  required_version = "~>1.3.0"
+  required_version = "~>1.3.7"
 
-  # backend "s3" {
-  #   bucket         = "depploy-terraform-state-production"
-  #   key            = "state/terraform.tfstate"
-  #   region         = "us-east-1"
-  #   dynamodb_table = "depploy-terraform-lock-production"
-  #   # encrypt = true
-  # }
+  backend "s3" {
+    bucket         = "depploy-terraform-state-production"
+    key            = "state/backend.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "depploy-terraform-lock-production"
+  }
 
   required_providers {
     aws = {
