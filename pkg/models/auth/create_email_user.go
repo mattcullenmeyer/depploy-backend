@@ -31,7 +31,7 @@ type EmailUserAttributes struct {
 	Password           string `dynamodbav:"Password"`
 	CreatedAt          string `dynamodbav:"CreatedAt"`
 	Verified           bool   `dynamodbav:"Verified"`
-	Superuser          bool   `dynamodbav:"Superuser"`
+	SuperAdmin         bool   `dynamodbav:"SuperAdmin"`
 	Type               string `dynamodbav:"Type"`
 	RegistrationMethod string `dynamodbav:"RegistrationMethod"`
 }
@@ -54,7 +54,7 @@ func CreateEmailUser(args CreateEmailUserParams) error {
 		Password:           args.Password,
 		CreatedAt:          time.Now().Format(time.RFC3339), // ISO8601 format for human readability
 		Verified:           false,
-		Superuser:          false,
+		SuperAdmin:         false,
 		Type:               "User Account",
 		RegistrationMethod: "Email",
 	}

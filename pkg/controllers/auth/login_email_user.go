@@ -9,13 +9,13 @@ import (
 	"github.com/mattcullenmeyer/depploy-backend/pkg/utils"
 )
 
-type LoginUserPayload struct {
+type LoginEmailUserPayload struct {
 	Username string `json:"username" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }
 
-func LoginUser(c *gin.Context) {
-	var payload LoginUserPayload
+func LoginEmailUser(c *gin.Context) {
+	var payload LoginEmailUserPayload
 
 	if err := c.ShouldBindJSON(&payload); err != nil {
 		log.Println(err.Error())
@@ -57,8 +57,8 @@ func LoginUser(c *gin.Context) {
 	}
 
 	generateTokenArgs := utils.GenerateTokenParams{
-		AccountId: user.AccountId,
-		Superuser: user.Superuser,
+		AccountId:  user.AccountId,
+		SuperAdmin: user.SuperAdmin,
 	}
 
 	authToken, err := utils.GenerateToken(generateTokenArgs)

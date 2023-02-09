@@ -8,14 +8,14 @@ import (
 )
 
 type GenerateTokenParams struct {
-	AccountId string
-	Superuser bool
+	AccountId  string
+	SuperAdmin bool
 }
 
 type ValidateTokenResult struct {
 	AccountId  string
-	Authorized bool
-	Superuser  bool
+	Refresh    bool
+	SuperAdmin bool
 }
 
 func GetJwtSecretKey() ([]byte, error) {
@@ -50,8 +50,8 @@ func GenerateToken(args GenerateTokenParams) (string, error) {
 	claims["nbf"] = time.Now().Unix()                       // Not before time
 
 	// Custom claims
-	claims["auth"] = true // Auth token can be used to access secure resources
-	claims["admin"] = args.Superuser
+	claims["refresh"] = false
+	claims["super"] = args.SuperAdmin
 
 	// Sign the JWT with a secret key
 	tokenString, err := token.SignedString([]byte(jwtSecretKey))
@@ -83,8 +83,8 @@ func GenerateRefreshToken(args GenerateTokenParams) (string, error) {
 	claims["nbf"] = time.Now().Unix()                     // Not before time
 
 	// Custom claims
-	claims["auth"] = false // Refresh token cannot be used to access secure resources
-	claims["admin"] = args.Superuser
+	claims["refresh"] = true // Refresh tokens cannot be used to access secure resources
+	claims["super"] = args.SuperAdmin
 
 	// Sign the JWT with a secret key
 	tokenString, err := token.SignedString([]byte(jwtSecretKey))
@@ -122,8 +122,8 @@ func ValidateToken(token string) (ValidateTokenResult, error) {
 
 	result := ValidateTokenResult{
 		AccountId:  claims["sub"].(string),
-		Authorized: claims["auth"].(bool),
-		Superuser:  claims["admin"].(bool),
+		Refresh:    claims["refresh"].(bool),
+		SuperAdmin: claims["super"].(bool),
 	}
 
 	return result, nil

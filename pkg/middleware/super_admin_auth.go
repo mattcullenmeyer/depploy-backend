@@ -6,11 +6,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SuperuserAuth() gin.HandlerFunc {
+func SuperAdminAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		superuser := c.GetBool("superuser")
+		superAdmin := c.GetBool("superAdmin")
 
-		if !superuser {
+		if !superAdmin {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "You are not authorized to access this resource"})
 			return
 		}

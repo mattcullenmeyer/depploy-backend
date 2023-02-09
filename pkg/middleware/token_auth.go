@@ -34,13 +34,13 @@ func TokenAuth() gin.HandlerFunc {
 			return
 		}
 
-		if !claims.Authorized {
+		if claims.Refresh {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "You are not authorized to access this resource"})
 			return
 		}
 
 		c.Set("accountId", claims.AccountId)
-		c.Set("superuser", claims.Superuser)
+		c.Set("superAdmin", claims.SuperAdmin)
 
 		c.Next()
 	}

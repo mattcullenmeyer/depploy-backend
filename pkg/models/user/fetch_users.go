@@ -24,7 +24,7 @@ type UserResult struct {
 	Email              string
 	CreatedAt          string
 	Verified           bool
-	Superuser          bool
+	SuperAdmin         bool
 	RegistrationMethod string
 }
 
@@ -53,7 +53,7 @@ func FetchUsers(args FetchUsersParams) (FetchUsersResult, error) {
 		expression.Name("Email"),
 		expression.Name("CreatedAt"),
 		expression.Name("Verified"),
-		expression.Name("Superuser"),
+		expression.Name("SuperAdmin"),
 		expression.Name("RegistrationMethod"),
 	)
 

@@ -30,7 +30,7 @@ type GoogleUserAttributes struct {
 	Email              string `dynamodbav:"Email"`
 	CreatedAt          string `dynamodbav:"CreatedAt"`
 	Verified           bool   `dynamodbav:"Verified"`
-	Superuser          bool   `dynamodbav:"Superuser"`
+	SuperAdmin         bool   `dynamodbav:"SuperAdmin"`
 	Type               string `dynamodbav:"Type"`
 	RegistrationMethod string `dynamodbav:"RegistrationMethod"`
 }
@@ -52,7 +52,7 @@ func CreateGoogleUser(args CreateGoogleUserParams) error {
 		Email:              args.Email,
 		CreatedAt:          time.Now().Format(time.RFC3339), // ISO8601 format for human readability
 		Verified:           args.Verified,
-		Superuser:          false,
+		SuperAdmin:         false,
 		Type:               "User Account",
 		RegistrationMethod: "Google",
 	}

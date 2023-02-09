@@ -8,6 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	authModel "github.com/mattcullenmeyer/depploy-backend/pkg/models/auth"
+	userModel "github.com/mattcullenmeyer/depploy-backend/pkg/models/user"
 	"github.com/mattcullenmeyer/depploy-backend/pkg/utils"
 )
 
@@ -24,29 +25,47 @@ func GoogleOAuth(c *gin.Context) {
 		return
 	}
 
-	user, err := utils.GetGoogleUserData(token)
+	googleUser, err := utils.GetGoogleUserData(token)
 	if err != nil {
 		log.Println(err.Error())
 		c.Redirect(http.StatusTemporaryRedirect, fmt.Sprintf("%s/signup?error=google", redirectLocation))
 		return
 	}
 
-	createGoogleUserArgs := authModel.CreateGoogleUserParams{
-		AccountId: user.AccountId,
-		Email:     user.Email,
-		Verified:  user.Verified,
-		Name:      user.Name,
+	fetchUserByAccountArgs := userModel.FetchUserByAccountParams{
+		AccountId: googleUser.AccountId,
 	}
 
-	if err := authModel.CreateGoogleUser(createGoogleUserArgs); err != nil {
+	user, err := userModel.FetchUserByAccount(fetchUserByAccountArgs)
+	if err != nil {
 		log.Println(err.Error())
 		c.Redirect(http.StatusTemporaryRedirect, fmt.Sprintf("%s/signup?error=internal", redirectLocation))
 		return
 	}
 
+	superAdmin := false
+	isNewAccount := user == userModel.FetchUserByAccountResult{}
+
+	if isNewAccount {
+		createGoogleUserArgs := authModel.CreateGoogleUserParams{
+			AccountId: googleUser.AccountId,
+			Email:     googleUser.Email,
+			Verified:  googleUser.Verified,
+			Name:      googleUser.Name,
+		}
+
+		if err := authModel.CreateGoogleUser(createGoogleUserArgs); err != nil {
+			log.Println(err.Error())
+			c.Redirect(http.StatusTemporaryRedirect, fmt.Sprintf("%s/signup?error=internal", redirectLocation))
+			return
+		}
+	} else {
+		superAdmin = user.SuperAdmin
+	}
+
 	generateTokenArgs := utils.GenerateTokenParams{
-		AccountId: user.AccountId,
-		Superuser: false,
+		AccountId:  googleUser.AccountId,
+		SuperAdmin: superAdmin,
 	}
 
 	authToken, err := utils.GenerateToken(generateTokenArgs)
@@ -71,5 +90,9 @@ func GoogleOAuth(c *gin.Context) {
 	c.SetCookie("auth_token", authToken, in15Minutes, "/", cookieDomain, true, false)
 	c.SetCookie("refresh_token", refreshToken, in24Hours, "/", cookieDomain, true, false)
 
-	c.Redirect(http.StatusTemporaryRedirect, fmt.Sprintf("%s/signup/username", redirectLocation))
+	if isNewAccount {
+		c.Redirect(http.StatusTemporaryRedirect, fmt.Sprintf("%s/signup/username", redirectLocation))
+	} else {
+		c.Redirect(http.StatusTemporaryRedirect, fmt.Sprintf("%s/%s", redirectLocation, user.Username))
+	}
 }

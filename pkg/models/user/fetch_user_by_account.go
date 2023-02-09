@@ -16,23 +16,23 @@ type FetchUserByAccountParams struct {
 }
 
 type GetUserByAccountItemAttributeValues struct {
-	Username  string `dynamodbav:"Username"`
-	AccountId string `dynamodbav:"AccountId"`
-	Email     string `dynamodbav:"Email"`
-	Password  string `dynamodbav:"Password"`
-	CreatedAt string `dynamodbav:"CreatedAt"`
-	Verified  bool   `dynamodbav:"Verified"`
-	Superuser bool   `dynamodbav:"Superuser"`
+	Username   string `dynamodbav:"Username"`
+	AccountId  string `dynamodbav:"AccountId"`
+	Email      string `dynamodbav:"Email"`
+	Password   string `dynamodbav:"Password"`
+	CreatedAt  string `dynamodbav:"CreatedAt"`
+	Verified   bool   `dynamodbav:"Verified"`
+	SuperAdmin bool   `dynamodbav:"SuperAdmin"`
 }
 
 type FetchUserByAccountResult struct {
-	Username  string
-	AccountId string
-	Email     string
-	Password  string
-	CreatedAt string
-	Verified  bool
-	Superuser bool
+	Username   string
+	AccountId  string
+	Email      string
+	Password   string
+	CreatedAt  string
+	Verified   bool
+	SuperAdmin bool
 }
 
 func FetchUserByAccount(args FetchUserByAccountParams) (FetchUserByAccountResult, error) {
