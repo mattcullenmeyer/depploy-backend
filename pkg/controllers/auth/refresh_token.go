@@ -53,19 +53,12 @@ func RefreshToken(c *gin.Context) {
 		SuperAdmin: user.SuperAdmin,
 	}
 
-	token, err := utils.GenerateToken(generateTokenArgs)
+	authTokens, err := utils.GenerateAuthTokens(generateTokenArgs)
 	if err != nil {
 		log.Println(err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate authentication token"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate authentication tokens"})
 		return
 	}
 
-	refresh, err := utils.GenerateRefreshToken(generateTokenArgs)
-	if err != nil {
-		log.Println(err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate refresh authentication token"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"auth_token": token, "refresh_token": refresh})
+	c.JSON(http.StatusOK, gin.H{"auth_token": authTokens.AuthToken, "refresh_token": authTokens.RefreshToken})
 }

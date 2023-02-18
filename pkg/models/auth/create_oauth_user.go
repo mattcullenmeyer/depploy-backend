@@ -13,14 +13,14 @@ import (
 	"github.com/mattcullenmeyer/depploy-backend/pkg/utils"
 )
 
-type CreateGoogleUserParams struct {
-	AccountId string
-	Email     string
-	Verified  bool
-	Name      string
+type CreateOauthUserParams struct {
+	AccountId          string
+	Email              string
+	Name               string
+	RegistrationMethod string
 }
 
-type GoogleUserAttributes struct {
+type OauthUserAttributes struct {
 	PK                 string `dynamodbav:"PK"`
 	SK                 string `dynamodbav:"SK"`
 	GSI1PK             string `dynamodbav:"GSI1PK"`
@@ -35,14 +35,14 @@ type GoogleUserAttributes struct {
 	RegistrationMethod string `dynamodbav:"RegistrationMethod"`
 }
 
-func CreateGoogleUser(args CreateGoogleUserParams) error {
+func CreateOauthUser(args CreateOauthUserParams) error {
 	svc := utils.DynamodbClient()
 	tableName := os.Getenv("DYNAMODB_TABLE_NAME")
 
 	accountIdKey := fmt.Sprintf("ID#%s", strings.ToLower(args.AccountId))
 	accountNameKey := fmt.Sprintf("ACCOUNT#%s", strings.ToLower(args.AccountId))
 
-	user := GoogleUserAttributes{
+	user := OauthUserAttributes{
 		PK:                 accountIdKey,
 		SK:                 accountIdKey,
 		GSI1PK:             accountNameKey,
@@ -51,10 +51,10 @@ func CreateGoogleUser(args CreateGoogleUserParams) error {
 		AccountId:          args.AccountId,
 		Email:              args.Email,
 		CreatedAt:          time.Now().Format(time.RFC3339), // ISO8601 format for human readability
-		Verified:           args.Verified,
+		Verified:           true,
 		SuperAdmin:         false,
 		Type:               "User Account",
-		RegistrationMethod: "Google",
+		RegistrationMethod: args.RegistrationMethod,
 	}
 
 	item, err := dynamodbattribute.MarshalMap(user)

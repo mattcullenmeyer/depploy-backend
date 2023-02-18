@@ -33,7 +33,7 @@ export DYNAMODB_ENDPOINT=dynamodb.us-east-1.amazonaws.com
 - Create user: `go run ./scripts/auth/createUser/main.go -u=username -e=email -p=password`
 - Create verification code: `go run ./scripts/auth/createVerificationCode/main.go -c=verification_code -a=account_id -u=username -e=email`
 - Fetch verification code: `go run ./scripts/auth/fetchVerificationCode/main.go -c=verification_code`
-- Update user verification: `go run ./scripts/auth/updateUserVerification/main.go -a=account_id`
+- Update user verification: `go run ./scripts/auth/updateUserVerification/main.go -a=account_id -v=boolean`
 
 ### User scripts
 
