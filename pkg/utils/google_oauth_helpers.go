@@ -14,7 +14,6 @@ import (
 type GoogleUserResult struct {
 	AccountId string `json:"id"`
 	Email     string `json:"email"`
-	Verified  bool   `json:"verified_email"`
 	Name      string `json:"name"`
 }
 
@@ -78,8 +77,10 @@ func GetGoogleUserData(token *oauth2.Token) (GoogleUserResult, error) {
 		return emptyResult, err
 	}
 
-	googleUserResult := GoogleUserResult{}
+	// Check all the key values that are returned
+	// fmt.Println("Google User Data: ", string(respBody))
 
+	googleUserResult := GoogleUserResult{}
 	if err := json.Unmarshal(respBody, &googleUserResult); err != nil {
 		return emptyResult, err
 	}

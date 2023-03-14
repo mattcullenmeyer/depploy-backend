@@ -2,8 +2,10 @@ package utils
 
 import (
 	"fmt"
+	"os"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 )
 
@@ -16,6 +18,11 @@ type ValidateTokenResult struct {
 	AccountId  string
 	Refresh    bool
 	SuperAdmin bool
+}
+
+type GenerateAuthTokensResult struct {
+	AuthToken    string
+	RefreshToken string
 }
 
 func GetJwtSecretKey() ([]byte, error) {
@@ -96,6 +103,27 @@ func GenerateRefreshToken(args GenerateTokenParams) (string, error) {
 	return tokenString, nil
 }
 
+func GenerateAuthTokens(args GenerateTokenParams) (GenerateAuthTokensResult, error) {
+	emptyResults := GenerateAuthTokensResult{}
+
+	authToken, err := GenerateToken(args)
+	if err != nil {
+		return emptyResults, err
+	}
+
+	refreshToken, err := GenerateRefreshToken(args)
+	if err != nil {
+		return emptyResults, err
+	}
+
+	tokenResults := GenerateAuthTokensResult{
+		AuthToken:    authToken,
+		RefreshToken: refreshToken,
+	}
+
+	return tokenResults, nil
+}
+
 func ValidateToken(token string) (ValidateTokenResult, error) {
 	emptyResult := ValidateTokenResult{}
 
@@ -127,4 +155,14 @@ func ValidateToken(token string) (ValidateTokenResult, error) {
 	}
 
 	return result, nil
+}
+
+func SetAuthCookies(c *gin.Context, authTokens GenerateAuthTokensResult) {
+	in15Minutes := 15 * 60
+	in24Hours := 24 * 60 * 60
+
+	cookieDomain := os.Getenv("COOKIE_DOMAIN")
+
+	c.SetCookie("auth_token", authTokens.AuthToken, in15Minutes, "/", cookieDomain, true, false)
+	c.SetCookie("refresh_token", authTokens.RefreshToken, in24Hours, "/", cookieDomain, true, false)
 }

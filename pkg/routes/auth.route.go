@@ -12,4 +12,5 @@ func AuthRoute(router *gin.RouterGroup) {
 	router.PATCH("/email/verify", authController.VerifyEmail)
 	router.POST("/email/resend", authController.ResendEmail)
 	router.GET("/google", authController.GoogleOAuth)
+	router.GET("/github", authController.GitHubOAuth)
 }

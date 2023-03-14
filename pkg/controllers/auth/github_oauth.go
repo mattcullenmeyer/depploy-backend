@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	authModel "github.com/mattcullenmeyer/depploy-backend/pkg/models/auth"
@@ -12,27 +13,28 @@ import (
 	"github.com/mattcullenmeyer/depploy-backend/pkg/utils"
 )
 
-func GoogleOAuth(c *gin.Context) {
+func GitHubOAuth(c *gin.Context) {
 	code := c.Query("code")
-	// Also returns a "scope" query param
+	// Also returns a "state" query param
 
 	redirectLocation := os.Getenv("CONSOLE_HOST")
 
-	token, err := utils.GetGoogleOauthToken(code)
+	token, err := utils.GetGitHubOauthToken(code)
 	if err != nil {
 		log.Println(err.Error())
-		c.Redirect(http.StatusTemporaryRedirect, fmt.Sprintf("%s/signup?error=google", redirectLocation))
+		c.Redirect(http.StatusTemporaryRedirect, fmt.Sprintf("%s/signup?error=github", redirectLocation))
 		return
 	}
 
-	googleUser, err := utils.GetGoogleUserData(token)
+	gitHubUser, err := utils.GetGitHubUserData(token)
 	if err != nil {
 		log.Println(err.Error())
-		c.Redirect(http.StatusTemporaryRedirect, fmt.Sprintf("%s/signup?error=google", redirectLocation))
+		c.Redirect(http.StatusTemporaryRedirect, fmt.Sprintf("%s/signup?error=github", redirectLocation))
 		return
 	}
 
-	accountId := fmt.Sprintf("go_%s", googleUser.AccountId) // Google account IDs are prefixed with "go_"
+	gitHubAccountId := strconv.Itoa(gitHubUser.AccountId)
+	accountId := fmt.Sprintf("gh_%s", gitHubAccountId) // GitHub account IDs are prefixed with "gh_"
 
 	fetchUserByAccountArgs := userModel.FetchUserByAccountParams{
 		AccountId: accountId,
@@ -51,9 +53,9 @@ func GoogleOAuth(c *gin.Context) {
 	if isNewAccount {
 		createOauthUserArgs := authModel.CreateOauthUserParams{
 			AccountId:          accountId,
-			Email:              googleUser.Email,
-			Name:               googleUser.Name,
-			RegistrationMethod: "Google",
+			Email:              gitHubUser.Email,
+			Name:               gitHubUser.Name,
+			RegistrationMethod: "GitHub",
 		}
 
 		if err := authModel.CreateOauthUser(createOauthUserArgs); err != nil {
@@ -84,4 +86,5 @@ func GoogleOAuth(c *gin.Context) {
 	} else {
 		c.Redirect(http.StatusTemporaryRedirect, fmt.Sprintf("%s/%s", redirectLocation, user.Username))
 	}
+
 }

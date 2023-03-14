@@ -61,19 +61,12 @@ func LoginEmailUser(c *gin.Context) {
 		SuperAdmin: user.SuperAdmin,
 	}
 
-	authToken, err := utils.GenerateToken(generateTokenArgs)
+	authTokens, err := utils.GenerateAuthTokens(generateTokenArgs)
 	if err != nil {
 		log.Println(err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate authentication token"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate authentication tokens"})
 		return
 	}
 
-	refreshToken, err := utils.GenerateRefreshToken(generateTokenArgs)
-	if err != nil {
-		log.Println(err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate authentication refresh token"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"auth_token": authToken, "refresh_token": refreshToken})
+	c.JSON(http.StatusOK, gin.H{"auth_token": authTokens.AuthToken, "refresh_token": authTokens.RefreshToken})
 }
