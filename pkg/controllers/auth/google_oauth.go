@@ -32,7 +32,7 @@ func GoogleOAuth(c *gin.Context) {
 		return
 	}
 
-	accountId := fmt.Sprintf("go_%s", googleUser.AccountId) // Google account IDs are prefixed with "go_"
+	accountId := fmt.Sprintf("GO%s", googleUser.AccountId) // Google account IDs are prefixed with "GO"
 
 	fetchUserByAccountArgs := userModel.FetchUserByAccountParams{
 		AccountId: accountId,
