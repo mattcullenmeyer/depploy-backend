@@ -34,7 +34,7 @@ func GitHubOAuth(c *gin.Context) {
 	}
 
 	gitHubAccountId := strconv.Itoa(gitHubUser.AccountId)
-	accountId := fmt.Sprintf("gh_%s", gitHubAccountId) // GitHub account IDs are prefixed with "gh_"
+	accountId := fmt.Sprintf("GH%s", gitHubAccountId) // GitHub account IDs are prefixed with "GH"
 
 	fetchUserByAccountArgs := userModel.FetchUserByAccountParams{
 		AccountId: accountId,

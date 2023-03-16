@@ -129,8 +129,28 @@ Use the -j flag to junk directory names, otherwise lambda won't work.
 
 ## Postman collection
 
-https://api.postman.com/collections/3361055-c70b30a6-8b9c-4831-baf4-c4355487a3b3?access_key=PMAT-01GP6J4N4WYAZ7FTMP8Y9J3FG9
+[Confluence link](https://mattcullenmeyer.atlassian.net/wiki/spaces/~701217c77864a7a5f4f69b9b38d1f152ff014/pages/196609/Depploy+Wiki)
 
 ## Helpful Go commands
 
-`go mod tidy -v` https://go.dev/ref/mod#go-mod-tidy
+https://go.dev/ref/mod#go-mod-tidy  
+`go mod tidy -v`
+
+## Google OAuth
+
+Google OAuth is managed from the [Google API Console](https://console.cloud.google.com/apis/credentials/consent?project=depploy-prod).
+There are "projects" for each environment (eg Depploy - PROD).
+Toggle through the different projects / environments using the dropdown in the top nav.
+Use the "Credentials" and "OAuth consent screen" menus in the side nav to edit the settings.
+Credentials are saved in an AWS System Manager Parameter Store.
+
+If you want to change the user support email, you'll first need to sign up for a Google account using that email.
+An existing account owner must then invite the new account using the following steps.
+
+1. Navigate to IAM & Admin >> IAM.
+2. Click the "Grant Access" button.
+3. Add a new "principal", using the new email account address
+4. Assign the role of Owner
+5. Have the new email account accept the invite
+
+You should now be able to change the user support email to the new email account.
