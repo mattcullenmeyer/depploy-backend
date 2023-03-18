@@ -22,18 +22,18 @@ func VerifyEmail(c *gin.Context) {
 		return
 	}
 
-	fetchVerificationCodeArgs := authModel.FetchVerificationCodeParams{
+	deleteOtpArgs := authModel.DeleteOtpParams{
 		Otp: payload.VerificationCode,
 	}
 
-	result, err := authModel.FetchVerificationCode(fetchVerificationCodeArgs)
+	result, err := authModel.DeleteOtp(deleteOtpArgs)
 	if err != nil {
 		log.Println(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify email"})
 		return
 	}
 
-	if result == (authModel.FetchVerificationCodeResult{}) {
+	if result == (authModel.DeleteOtpResult{}) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Verification code is invalid or expired"})
 		return
 	}
@@ -49,5 +49,6 @@ func VerifyEmail(c *gin.Context) {
 		return
 	}
 
+	// TODO: Redact part of email
 	c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("Successfully verified email for %s", result.Email)})
 }

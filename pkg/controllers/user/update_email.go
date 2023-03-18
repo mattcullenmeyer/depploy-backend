@@ -8,12 +8,12 @@ import (
 	userModel "github.com/mattcullenmeyer/depploy-backend/pkg/models/user"
 )
 
-type UpdateUsernamePayload struct {
-	Username string `json:"username" binding:"required"`
+type UpdateEmailPayload struct {
+	Email string `json:"email" binding:"required"`
 }
 
-func UpdateUsername(c *gin.Context) {
-	var payload UpdateUsernamePayload
+func UpdateEmail(c *gin.Context) {
+	var payload UpdateEmailPayload
 
 	if err := c.ShouldBindJSON(&payload); err != nil {
 		log.Println(err.Error())
@@ -21,16 +21,16 @@ func UpdateUsername(c *gin.Context) {
 		return
 	}
 
-	updateAccountUsernameArgs := userModel.UpdateAccountUsernameParams{
-		Username:  payload.Username,
+	updateUserEmailArgs := userModel.UpdateUserEmailParams{
 		AccountId: c.MustGet("accountId").(string),
+		Email:     payload.Email,
 	}
 
-	if err := userModel.UpdateAccountUsername(updateAccountUsernameArgs); err != nil {
+	if err := userModel.UpdateUserEmail(updateUserEmailArgs); err != nil {
 		log.Println(err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Updated username successfully"})
+	c.JSON(http.StatusOK, gin.H{"message": "Updated email successfully"})
 }

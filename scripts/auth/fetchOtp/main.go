@@ -1,0 +1,25 @@
+package main
+
+import (
+	"flag"
+	"fmt"
+
+	authModel "github.com/mattcullenmeyer/depploy-backend/pkg/models/auth"
+)
+
+func main() {
+	otpPtr := flag.String("p", "", "one-time password")
+	flag.Parse()
+
+	fetchOtpArgs := authModel.FetchOtpParams{
+		Otp: *otpPtr,
+	}
+
+	result, err := authModel.FetchOtp(fetchOtpArgs)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	fmt.Printf("%+v\n", result)
+}

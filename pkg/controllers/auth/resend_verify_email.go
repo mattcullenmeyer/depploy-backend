@@ -11,7 +11,7 @@ import (
 )
 
 type ResendEmailPayload struct {
-	Username string `json:"username" binding:"required"`
+	Email string `json:"email" binding:"required"`
 }
 
 func ResendEmail(c *gin.Context) {
@@ -23,23 +23,23 @@ func ResendEmail(c *gin.Context) {
 		return
 	}
 
-	username := payload.Username
+	email := payload.Email
 
-	fetchUserByUsernameArgs := userModel.FetchUserByUsernameParams{
-		Username: username,
+	fetchUserByEmailArgs := userModel.FetchUserByEmailParams{
+		Email: email,
 	}
 
-	user, err := userModel.FetchUserByUsername(fetchUserByUsernameArgs)
+	user, err := userModel.FetchUserByEmail(fetchUserByEmailArgs)
 	if err != nil {
 		log.Println(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch user"})
 		return
 	}
 
-	if user == (userModel.FetchUserByUsernameResult{}) {
+	if user == (userModel.FetchUserByEmailResult{}) {
 		// User does not exist
 		// Return status ok since we don't want to communicate that the user doesn't exist
-		log.Printf("Cannot resend email verification because '%s' does not exist", username)
+		log.Printf("Cannot resend email verification because '%s' does not exist", email)
 		c.Status(http.StatusOK)
 		return
 	}
@@ -49,30 +49,32 @@ func ResendEmail(c *gin.Context) {
 		return
 	}
 
-	otp, err := utils.GenerateOtp()
+	generateOtpArgs := utils.GenerateOtpParams{
+		Email: email,
+	}
+
+	otp, err := utils.GenerateOtp(generateOtpArgs)
 	if err != nil {
 		log.Println(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate one-time password"})
 		return
 	}
 
-	otpArgs := authModel.CreateVerificationCodeParams{
-		Otp:      otp,
-		Username: username,
-		Email:    user.Email,
+	createOtpArgs := authModel.CreateOtpParams{
+		Otp:   otp,
+		Email: user.Email,
 	}
 
 	// Save verification code to database
-	if err := authModel.CreateVerificationCode(otpArgs); err != nil {
+	if err := authModel.CreateOtp(createOtpArgs); err != nil {
 		log.Println(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save one-time password"})
 		return
 	}
 
 	emailArgs := utils.SendConfirmationEmailParams{
-		Otp:      otp,
-		Username: username,
-		Email:    user.Email,
+		Otp:   otp,
+		Email: user.Email,
 	}
 
 	if err := utils.SendConfirmationEmail(emailArgs); err != nil {

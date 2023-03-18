@@ -1,43 +1,56 @@
 Authentication models and controllers relied heavily on https://codevoweb.com/golang-and-gorm-user-registration-email-verification/
 
+## DynamoDB docs & notes
+
+https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/dynamodb#section-documentation
+
+- You cannot update or delete items from a global secondary index
+
 ## Entity chart
 
-| Entity / Type | PK                              | SK                                        |
-| ------------- | ------------------------------- | ----------------------------------------- |
-| Account ID    | `ID#<UserAccountId>`            | `ID#<UserAccountId>`                      |
-| Organization  | `ID#<OrgAccountId>`             | `ID#<OrgAccountId>`                       |
-| Membership    | `ID#<OrgAccountId>`             | `MEMBER#<UserAccountId>`                  |
-| Project       | `ID#<AccountId>`                | `PROJECT#<AccountId>#<Project>`           |
-| Environment   | `PROJECT#<AccountId>#<Project>` | `ENV#<Project>#<AccountId>#<Environment>` |
-| OTP           | `<OTP>`                         | `<OTP>`                                   |
+| Entity / Type | PK                        | SK                                | Use case                  |
+| ------------- | ------------------------- | --------------------------------- | ------------------------- |
+| Account       | `ID#<UserAccountId>`      | `ID#<UserAccountId>`              | Fetch account details     |
+| Project       | `PROJ#<ProjectId>`        | `PROJ#<ProjectId>`                | Fetch project details     |
+| Member        | `PROJ#<ProjectId>`        | `TEAM#<UserAccountId>`            | Fetch members of project  |
+| App           | `PROJ#<ProjectId>`        | `APP#<ProjectId>#<AppId>`         | Fetch apps of project     |
+| Environment   | `APP#<ProjectId>#<AppId>` | `ENV#<ProjectId>#<AppId>#<EnvId>` | Fetch environments of app |
+| OTP           | `OTP#<OTP>`               | `OTP#<OTP>`                       | Fetch OTP details         |
 
-Should projects be renamed to stacks?
+Should projects be renamed to stacks or apps?
 
 ## Global secondary index #1 (GSI1) // Sparse index
 
-| Entity       | GSI1PK                  | GSI1SK                  |
-| ------------ | ----------------------- | ----------------------- |
-| Account Name | `ACCOUNT#<AccountName>` | `ACCOUNT#<AccountName>` |
+| Entity  | GSI1PK                 | GSI1SK                 | Use case               |
+| ------- | ---------------------- | ---------------------- | ---------------------- |
+| Account | `EMAIL#<AccountEmail>` | `EMAIL#<AccountEmail>` | Fetch account by email |
+
+## Global secondary index #2 (GSI2)
+
+| Entity      | GSI2PK                   | GSI2SK                    | Use case                    |
+| ----------- | ------------------------ | ------------------------- | --------------------------- |
+| Member      | `ID#<UserAccountId>`     | `PROJ#<ProjectId>`        | Fetch projects of account   |
+| Project     | `PROJNAME#<ProjectName>` | `PROJNAME#<ProjectName>`  | Fetch project by name       |
+| Environment | `PROJ#<ProjectId>`       | `ENV#<ProjectId>#<EnvId>` | Fetch apps of environment   |
+| OTP         | `OTP#<AccountEmail>`     | `OTP#<AccountEmail>`      | Delete all OTPs for account |
 
 ## Access patterns
 
-- Fetch account by account id (an account can be a user or an organization)
-- Fetch account by account name (use GSI1; also referred to as username)
-- Fetch all accounts (users & orgs; scan on sparse GSI1)
-- Fetch all organizations of which a user is a member
-- Fetch all members of an organization
-- Fetch all projects that belong to an account
-- Fetch all environments for a project
-- Change username for an account
-- Change email for an account
+- Fetch account by account id: Account entity on PK
+- Fetch account by email: Account entity on GSI1
+- Fetch all accounts: Scan Account entity on GSI1
+- Fetch all projects of which a user is a member: Member entity on GSI2
+- Fetch all members of a project: Member entity on PK (SK >= "P")
+- Fetch all apps of a project: App entity on PK (SK <= "P")
+- Fetch all environments of an app: Environment entity on PK
+- Fetch all environments of a project: Listed in the project entity
+- Fetch all apps of an environment: Environment entity on GSI1
 
-## Accounts
+## Accounts & projects
 
-- An account is a collection of projects with its own namespace (ie no 2 accounts can share the same name)
-- The Depploy app console will include account name in the URL path to signal to user which account they're viewing
-- An account can be a user or an organization
-- A user represents a single person with one set of credentials
-- An organization is a shared account (ie there is no login for an organization)
-- A user must create an organization for other users to access shared projects
-- A user can create and belong to multiple organizations
-- A user account should only reference organization IDs and organizations should only reference user IDs in case account names are changed
+- Accounts must be unique and projects must be unique
+- A project is a collection of apps and team members
+- The Depploy console will include the project name in the URL to signal to users which project they're viewing
+- When a user creates a project, they become an admin member of the project
+- Project admins can invite other team members to join their project
+- A user can create and belong to multiple projects

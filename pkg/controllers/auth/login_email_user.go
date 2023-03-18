@@ -10,7 +10,7 @@ import (
 )
 
 type LoginEmailUserPayload struct {
-	Username string `json:"username" binding:"required"`
+	Email    string `json:"email" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }
 
@@ -23,13 +23,13 @@ func LoginEmailUser(c *gin.Context) {
 		return
 	}
 
-	username := payload.Username
+	email := payload.Email
 
-	fetchUserByUsernameArgs := userModel.FetchUserByUsernameParams{
-		Username: username,
+	fetchUserByEmailArgs := userModel.FetchUserByEmailParams{
+		Email: email,
 	}
 
-	user, err := userModel.FetchUserByUsername(fetchUserByUsernameArgs)
+	user, err := userModel.FetchUserByEmail(fetchUserByEmailArgs)
 	if err != nil {
 		log.Println(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to log in user"})
@@ -37,7 +37,7 @@ func LoginEmailUser(c *gin.Context) {
 	}
 
 	// Return 400 status code
-	if user == (userModel.FetchUserByUsernameResult{}) {
+	if user == (userModel.FetchUserByEmailResult{}) {
 		// User does not exist
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid username or password"})
 		return

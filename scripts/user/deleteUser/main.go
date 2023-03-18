@@ -21,5 +21,5 @@ func main() {
 		return
 	}
 
-	fmt.Println("Successfully deleted user")
+	fmt.Println("Successfully deleted user account")
 }

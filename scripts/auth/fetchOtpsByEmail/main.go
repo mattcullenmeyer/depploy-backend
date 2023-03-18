@@ -8,14 +8,14 @@ import (
 )
 
 func main() {
-	otpPtr := flag.String("c", "", "verification code")
+	emailPtr := flag.String("e", "", "email")
 	flag.Parse()
 
-	fetchVerificationCodeArgs := authModel.FetchVerificationCodeParams{
-		Otp: *otpPtr,
+	fetchOtpsByEmailArgs := authModel.FetchOtpsByEmailParams{
+		Email: *emailPtr,
 	}
 
-	result, err := authModel.FetchVerificationCode(fetchVerificationCodeArgs)
+	result, err := authModel.FetchOtpsByEmail(fetchOtpsByEmailArgs)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
