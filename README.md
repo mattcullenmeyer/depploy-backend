@@ -43,6 +43,8 @@ echo $DYNAMODB_ENDPOINT
 
 `make docker-up`
 
+If you're registering a new user locally, comment out `SendConfirmationEmail` in pkg/controllers/auth/register_email_user.go unless you want to test sending the email to a real email account.
+
 Be sure database is created first.
 Docker will need to be running to execute the following command.  
 `go run ./init .`

@@ -1,12 +1,12 @@
 package authController
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	authModel "github.com/mattcullenmeyer/depploy-backend/pkg/models/auth"
+	"github.com/mattcullenmeyer/depploy-backend/pkg/utils"
 )
 
 type VerifyEmailPayload struct {
@@ -49,6 +49,17 @@ func VerifyEmail(c *gin.Context) {
 		return
 	}
 
-	// TODO: Redact part of email
-	c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("Successfully verified email for %s", result.Email)})
+	generateTokenArgs := utils.GenerateTokenParams{
+		AccountId:  result.AccountId,
+		SuperAdmin: false,
+	}
+
+	authTokens, err := utils.GenerateAuthTokens(generateTokenArgs)
+	if err != nil {
+		log.Println(err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate authentication tokens"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"auth_token": authTokens.AuthToken, "refresh_token": authTokens.RefreshToken})
 }

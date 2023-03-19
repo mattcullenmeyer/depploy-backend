@@ -10,6 +10,7 @@ func GenerateOtp(args GenerateOtpParams) (string, error) {
 	key, err := totp.Generate(totp.GenerateOpts{
 		Issuer:      "depploy.io",
 		AccountName: args.Email,
+		SecretSize:  4,
 	})
 	if err != nil {
 		return "", err

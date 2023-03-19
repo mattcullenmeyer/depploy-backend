@@ -8,18 +8,17 @@ import (
 )
 
 type SendConfirmationEmailParams struct {
-	Otp      string
-	Username string
-	Email    string
+	Otp   string
+	Email string
 }
 
 // https://github.com/sendgrid/sendgrid-go/blob/main/use-cases/substitutions-with-mailer-helper.md
 func SendConfirmationEmail(args SendConfirmationEmailParams) error {
 	m := mail.NewV3Mail()
 
-	address := "hello@depploy.io"
-	name := "Depploy"
-	e := mail.NewEmail(name, address)
+	fromName := "Depploy"
+	fromAddress := "hello@depploy.io"
+	e := mail.NewEmail(fromName, fromAddress)
 	m.SetFrom(e)
 
 	templateId, err := GetParameter("SendGridEmailVerificationTemplate")
@@ -30,8 +29,10 @@ func SendConfirmationEmail(args SendConfirmationEmailParams) error {
 	m.SetTemplateID(templateId)
 
 	p := mail.NewPersonalization()
+	toName := "" // TODO: Fill in something for name
+	toAddress := args.Email
 	tos := []*mail.Email{
-		mail.NewEmail(args.Username, args.Email),
+		mail.NewEmail(toName, toAddress),
 	}
 	p.AddTos(tos...)
 

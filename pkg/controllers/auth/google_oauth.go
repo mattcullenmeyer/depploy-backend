@@ -79,5 +79,5 @@ func GoogleOAuth(c *gin.Context) {
 
 	utils.SetAuthCookies(c, authTokens)
 
-	c.Redirect(http.StatusTemporaryRedirect, "/projects")
+	c.Redirect(http.StatusTemporaryRedirect, "/")
 }

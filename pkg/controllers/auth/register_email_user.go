@@ -11,9 +11,7 @@ import (
 )
 
 type RegisterEmailUserPayload struct {
-	Username string `json:"username" binding:"required"`
-	Email    string `json:"email" binding:"required"`
-	Password string `json:"password" binding:"required"`
+	Email string `json:"email" binding:"required"`
 }
 
 // https://pkg.go.dev/github.com/gin-gonic/gin#section-readme
@@ -27,54 +25,47 @@ func RegisterEmailUser(c *gin.Context) {
 		return
 	}
 
-	username, email, password := payload.Username, payload.Email, payload.Password
-
-	hashedPassword, err := utils.HashPassword(password)
-	if err != nil {
-		log.Println(err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Password encryption failed"})
-		return
-	}
-
-	accountId := ksuid.New()
+	accountId := ksuid.New().String()
+	email := payload.Email
 
 	createEmailUserArgs := authModel.CreateEmailUserParams{
-		AccountId: accountId.String(),
-		Username:  username,
+		AccountId: accountId,
 		Email:     email,
-		Password:  hashedPassword,
 	}
 
 	if err := authModel.CreateEmailUser(createEmailUserArgs); err != nil {
 		log.Println(err.Error())
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Username already exists"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Email is already registered"})
 		return
 	}
 
-	otp, err := utils.GenerateOtp()
+	generateOtpArgs := utils.GenerateOtpParams{
+		Email: email,
+	}
+
+	otp, err := utils.GenerateOtp(generateOtpArgs)
 	if err != nil {
 		log.Println(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate one-time password"})
 		return
 	}
 
-	otpArgs := authModel.CreateVerificationCodeParams{
-		Otp:      otp,
-		Username: username,
-		Email:    email,
+	createOtpArgs := authModel.CreateOtpParams{
+		Otp:       otp,
+		AccountId: accountId,
+		Email:     email,
 	}
 
-	// Save verification code to database
-	if err := authModel.CreateVerificationCode(otpArgs); err != nil {
+	// Save one-time password to database
+	if err := authModel.CreateOtp(createOtpArgs); err != nil {
 		log.Println(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save one-time password"})
 		return
 	}
 
 	emailArgs := utils.SendConfirmationEmailParams{
-		Otp:      otp,
-		Username: username,
-		Email:    email,
+		Otp:   otp,
+		Email: email,
 	}
 
 	// Send verification email
@@ -84,5 +75,6 @@ func RegisterEmailUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"username": username, "email": email})
+	// TODO: Redact part of email
+	c.JSON(http.StatusCreated, gin.H{"email": email})
 }

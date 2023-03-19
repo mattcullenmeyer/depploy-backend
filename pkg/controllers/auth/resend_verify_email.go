@@ -61,8 +61,9 @@ func ResendEmail(c *gin.Context) {
 	}
 
 	createOtpArgs := authModel.CreateOtpParams{
-		Otp:   otp,
-		Email: user.Email,
+		Otp:       otp,
+		AccountId: user.AccountId,
+		Email:     user.Email,
 	}
 
 	// Save verification code to database
