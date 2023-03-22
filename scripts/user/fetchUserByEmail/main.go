@@ -8,14 +8,14 @@ import (
 )
 
 func main() {
-	usernamePtr := flag.String("u", "", "username")
+	emailPtr := flag.String("e", "", "email")
 	flag.Parse()
 
-	fetchUserByUsernameArgs := userModel.FetchUserByUsernameParams{
-		Username: *usernamePtr,
+	fetchUserByEmailArgs := userModel.FetchUserByEmailParams{
+		Email: *emailPtr,
 	}
 
-	result, err := userModel.FetchUserByUsername(fetchUserByUsernameArgs)
+	result, err := userModel.FetchUserByEmail(fetchUserByEmailArgs)
 	if err != nil {
 		fmt.Println(err.Error())
 		return

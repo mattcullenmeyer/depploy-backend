@@ -16,7 +16,6 @@ type FetchUserByAccountParams struct {
 }
 
 type GetUserByAccountItemAttributeValues struct {
-	Username   string `dynamodbav:"Username"`
 	AccountId  string `dynamodbav:"AccountId"`
 	Email      string `dynamodbav:"Email"`
 	Password   string `dynamodbav:"Password"`
@@ -26,7 +25,6 @@ type GetUserByAccountItemAttributeValues struct {
 }
 
 type FetchUserByAccountResult struct {
-	Username   string
 	AccountId  string
 	Email      string
 	Password   string

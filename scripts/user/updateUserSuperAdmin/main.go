@@ -22,5 +22,5 @@ func main() {
 		return
 	}
 
-	fmt.Println("Successfully updated super admin access")
+	fmt.Println("Successfully updated account super admin access")
 }

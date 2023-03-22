@@ -9,8 +9,9 @@ import (
 // WARNING: Do NOT add endpoint to change SuperAdmin access for security reasons
 func UserRoute(router *gin.RouterGroup) {
 	// router.GET("/username/:username", userController.Username) // TODO: Clean up Username controller
-	router.GET("/username/:username", userController.CheckUsernameAvailability)
+	router.GET("/email/:email", userController.CheckEmailAvailability)
 	router.GET("/details", middleware.TokenAuth(), userController.GetUser)
 	router.GET("/users", middleware.TokenAuth(), middleware.SuperAdminAuth(), userController.GetUsers)
-	router.PATCH("/username", middleware.TokenAuth(), userController.UpdateUsername)
+	router.PATCH("/password", middleware.TokenAuth(), userController.UpdatePassword)
+	router.PATCH("/email", middleware.TokenAuth(), userController.UpdateEmail)
 }

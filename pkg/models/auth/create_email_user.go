@@ -15,9 +15,7 @@ import (
 
 type CreateEmailUserParams struct {
 	AccountId string
-	Username  string
 	Email     string
-	Password  string
 }
 
 type EmailUserAttributes struct {
@@ -25,10 +23,8 @@ type EmailUserAttributes struct {
 	SK                 string `dynamodbav:"SK"`
 	GSI1PK             string `dynamodbav:"GSI1PK"`
 	GSI1SK             string `dynamodbav:"GSI1SK"`
-	Username           string `dynamodbav:"Username"`
 	AccountId          string `dynamodbav:"AccountId"`
 	Email              string `dynamodbav:"Email"`
-	Password           string `dynamodbav:"Password"`
 	CreatedAt          string `dynamodbav:"CreatedAt"`
 	Verified           bool   `dynamodbav:"Verified"`
 	SuperAdmin         bool   `dynamodbav:"SuperAdmin"`
@@ -41,17 +37,15 @@ func CreateEmailUser(args CreateEmailUserParams) error {
 	tableName := os.Getenv("DYNAMODB_TABLE_NAME")
 
 	accountIdKey := fmt.Sprintf("ID#%s", strings.ToLower(args.AccountId))
-	accountNameKey := fmt.Sprintf("ACCOUNT#%s", strings.ToLower(args.Username))
+	accountNameKey := fmt.Sprintf("EMAIL#%s", strings.ToLower(args.Email))
 
 	user := EmailUserAttributes{
 		PK:                 accountIdKey,
 		SK:                 accountIdKey,
 		GSI1PK:             accountNameKey,
 		GSI1SK:             accountNameKey,
-		Username:           args.Username,
 		AccountId:          args.AccountId,
 		Email:              args.Email,
-		Password:           args.Password,
 		CreatedAt:          time.Now().Format(time.RFC3339), // ISO8601 format for human readability
 		Verified:           false,
 		SuperAdmin:         false,

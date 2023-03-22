@@ -79,9 +79,5 @@ func GoogleOAuth(c *gin.Context) {
 
 	utils.SetAuthCookies(c, authTokens)
 
-	if isNewAccount {
-		c.Redirect(http.StatusTemporaryRedirect, fmt.Sprintf("%s/signup/username", redirectLocation))
-	} else {
-		c.Redirect(http.StatusTemporaryRedirect, fmt.Sprintf("%s/%s", redirectLocation, user.Username))
-	}
+	c.Redirect(http.StatusTemporaryRedirect, "/")
 }

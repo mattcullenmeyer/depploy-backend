@@ -8,19 +8,21 @@ import (
 )
 
 func main() {
+	otpPtr := flag.String("p", "", "one-time password")
 	accountIdPtr := flag.String("a", "", "account id")
 	emailPtr := flag.String("e", "", "email")
 	flag.Parse()
 
-	createUserArgs := authModel.CreateEmailUserParams{
+	createOtpArgs := authModel.CreateOtpParams{
+		Otp:       *otpPtr,
 		AccountId: *accountIdPtr,
 		Email:     *emailPtr,
 	}
 
-	if err := authModel.CreateEmailUser(createUserArgs); err != nil {
+	if err := authModel.CreateOtp(createOtpArgs); err != nil {
 		fmt.Println(err.Error())
 		return
 	}
 
-	fmt.Println("Successfully created new user")
+	fmt.Println("Successfully created one-time password")
 }

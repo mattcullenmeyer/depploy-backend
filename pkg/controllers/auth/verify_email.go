@@ -1,16 +1,16 @@
 package authController
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	authModel "github.com/mattcullenmeyer/depploy-backend/pkg/models/auth"
+	"github.com/mattcullenmeyer/depploy-backend/pkg/utils"
 )
 
 type VerifyEmailPayload struct {
-	VerificationCode string `json:"verification_code" binding:"required"`
+	VerificationCode string `json:"code" binding:"required"`
 }
 
 func VerifyEmail(c *gin.Context) {
@@ -22,19 +22,20 @@ func VerifyEmail(c *gin.Context) {
 		return
 	}
 
-	fetchVerificationCodeArgs := authModel.FetchVerificationCodeParams{
+	deleteOtpArgs := authModel.DeleteOtpParams{
 		Otp: payload.VerificationCode,
 	}
 
-	result, err := authModel.FetchVerificationCode(fetchVerificationCodeArgs)
+	// This will throw an error if TTL condition check fails
+	result, err := authModel.DeleteOtp(deleteOtpArgs)
 	if err != nil {
 		log.Println(err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify email"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "Verification code is invalid or expired"})
 		return
 	}
 
-	if result == (authModel.FetchVerificationCodeResult{}) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Verification code is invalid or expired"})
+	if result == (authModel.DeleteOtpResult{}) {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Verification code is invalid or expired"})
 		return
 	}
 
@@ -49,5 +50,17 @@ func VerifyEmail(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("Successfully verified email for %s", result.Email)})
+	generateTokenArgs := utils.GenerateTokenParams{
+		AccountId:  result.AccountId,
+		SuperAdmin: false,
+	}
+
+	authTokens, err := utils.GenerateAuthTokens(generateTokenArgs)
+	if err != nil {
+		log.Println(err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate authentication tokens"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"auth_token": authTokens.AuthToken, "refresh_token": authTokens.RefreshToken})
 }

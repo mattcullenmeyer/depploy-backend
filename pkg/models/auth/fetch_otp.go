@@ -1,9 +1,10 @@
-package userModel
+package authModel
 
 import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
@@ -12,44 +13,44 @@ import (
 	"github.com/mattcullenmeyer/depploy-backend/pkg/utils"
 )
 
-type FetchUserByUsernameParams struct {
-	Username string
+type FetchOtpParams struct {
+	Otp string
 }
 
-type GetUserByUsernameItemAttributeValues struct {
-	Username   string `dynamodbav:"Username"`
+type QueryAttributeValues struct {
 	AccountId  string `dynamodbav:"AccountId"`
-	Email      string `dynamodbav:"Email"`
 	Password   string `dynamodbav:"Password"`
-	CreatedAt  string `dynamodbav:"CreatedAt"`
-	Verified   bool   `dynamodbav:"Verified"`
-	SuperAdmin bool   `dynamodbav:"SuperAdmin"`
+	Email      string `dynamodbav:"Email"`
+	Expiration string `dynamodbav:"Expiration"`
 }
 
-type FetchUserByUsernameResult struct {
-	Username   string
+type FetchOtpResult struct {
 	AccountId  string
-	Email      string
 	Password   string
-	CreatedAt  string
-	Verified   bool
-	SuperAdmin bool
+	Email      string
+	Expiration string
 }
 
-func FetchUserByUsername(args FetchUserByUsernameParams) (FetchUserByUsernameResult, error) {
+func FetchOtp(args FetchOtpParams) (FetchOtpResult, error) {
 	svc := utils.DynamodbClient()
 	tableName := os.Getenv("DYNAMODB_TABLE_NAME")
 
-	emptyResult := FetchUserByUsernameResult{}
+	emptyResult := FetchOtpResult{}
 
-	accountNameKey := fmt.Sprintf("ACCOUNT#%s", strings.ToLower(args.Username))
+	otpKey := fmt.Sprintf("OTP#%s", strings.ToLower(args.Otp))
 
-	pkCondition := expression.Key("GSI1PK").Equal(expression.Value(accountNameKey))
-	skCondition := expression.Key("GSI1SK").Equal(expression.Value(accountNameKey))
+	pkCondition := expression.Key("PK").Equal(expression.Value(otpKey))
+	skCondition := expression.Key("SK").Equal(expression.Value(otpKey))
 	keyCondition := pkCondition.And(skCondition)
 
+	// Only include verification codes where expiration is in the future
+	now := time.Now().Unix()
+	filter := expression.Name("TTL").GreaterThan(expression.Value(now))
+
+	// Combine the key condition and filter together as a DynamoDB expression builder
 	expr, err := expression.NewBuilder().
 		WithKeyCondition(keyCondition).
+		WithFilter(filter).
 		Build()
 	if err != nil {
 		return emptyResult, err
@@ -57,8 +58,8 @@ func FetchUserByUsername(args FetchUserByUsernameParams) (FetchUserByUsernameRes
 
 	input := &dynamodb.QueryInput{
 		TableName:                 aws.String(tableName),
-		IndexName:                 aws.String("GSI1"),
 		KeyConditionExpression:    expr.KeyCondition(),
+		FilterExpression:          expr.Filter(),
 		ExpressionAttributeNames:  expr.Names(),
 		ExpressionAttributeValues: expr.Values(),
 	}
@@ -72,14 +73,14 @@ func FetchUserByUsername(args FetchUserByUsernameParams) (FetchUserByUsernameRes
 		return emptyResult, nil
 	}
 
-	attributeValues := []GetUserByUsernameItemAttributeValues{}
+	attributeValues := []QueryAttributeValues{}
 
 	err = dynamodbattribute.UnmarshalListOfMaps(queryOutput.Items, &attributeValues)
 	if err != nil {
 		return emptyResult, err
 	}
 
-	result := FetchUserByUsernameResult(attributeValues[0])
+	result := FetchOtpResult(attributeValues[0])
 
 	return result, nil
 }

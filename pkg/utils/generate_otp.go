@@ -2,10 +2,15 @@ package utils
 
 import "github.com/pquerna/otp/totp"
 
-func GenerateOtp() (string, error) {
+type GenerateOtpParams struct {
+	Email string
+}
+
+func GenerateOtp(args GenerateOtpParams) (string, error) {
 	key, err := totp.Generate(totp.GenerateOpts{
 		Issuer:      "depploy.io",
-		AccountName: "hello@depploy.io",
+		AccountName: args.Email,
+		SecretSize:  4,
 	})
 	if err != nil {
 		return "", err

@@ -2,7 +2,9 @@ package authModel
 
 import (
 	"errors"
+	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -11,40 +13,45 @@ import (
 	"github.com/mattcullenmeyer/depploy-backend/pkg/utils"
 )
 
-type CreateVerificationCodeParams struct {
+type CreateOtpParams struct {
 	Otp       string
 	AccountId string
-	Username  string
 	Email     string
 }
 
-type VerificationCodeAttributes struct {
+type OtpAttributes struct {
 	PK         string `dynamodbav:"PK"`
 	SK         string `dynamodbav:"SK"`
+	GSI2PK     string `dynamodbav:"GSI2PK"`
+	GSI2SK     string `dynamodbav:"GSI2SK"`
 	AccountId  string `dynamodbav:"AccountId"`
-	Username   string `dynamodbav:"Username"`
+	Password   string `dynamodbav:"Password"`
 	Email      string `dynamodbav:"Email"`
 	Expiration string `dynamodbav:"Expiration"`
 	TTL        int64  `dynamodbav:"TTL"`
 }
 
-func CreateVerificationCode(args CreateVerificationCodeParams) error {
+func CreateOtp(args CreateOtpParams) error {
 	svc := utils.DynamodbClient()
 	tableName := os.Getenv("DYNAMODB_TABLE_NAME")
 
-	ttl := time.Now().Add(time.Hour * 24)
+	otpKey := fmt.Sprintf("OTP#%s", strings.ToLower(args.Otp))
+	emailKey := fmt.Sprintf("OTP#%s", strings.ToLower(args.Email))
+	ttl := time.Now().Add(time.Minute * 15)
 
-	verificationCode := VerificationCodeAttributes{
-		PK:         args.Otp,
-		SK:         args.Otp,
+	otp := OtpAttributes{
+		PK:         otpKey,
+		SK:         otpKey,
+		GSI2PK:     emailKey,
+		GSI2SK:     emailKey,
 		AccountId:  args.AccountId,
-		Username:   args.Username,
+		Password:   args.Otp,
 		Email:      args.Email,
 		Expiration: ttl.Format(time.RFC3339), // ISO8601 format for human readability
 		TTL:        ttl.Unix(),
 	}
 
-	item, err := dynamodbattribute.MarshalMap(verificationCode)
+	item, err := dynamodbattribute.MarshalMap(otp)
 	if err != nil {
 		return errors.New("error marshalling verification code")
 	}
@@ -52,7 +59,7 @@ func CreateVerificationCode(args CreateVerificationCodeParams) error {
 	input := &dynamodb.PutItemInput{
 		TableName:           aws.String(tableName),
 		Item:                item,
-		ConditionExpression: aws.String("attribute_not_exists(PK)"),
+		ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(GSI2PK)"),
 	}
 
 	_, err = svc.PutItem(input)
