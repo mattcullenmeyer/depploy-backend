@@ -10,7 +10,7 @@ import (
 )
 
 type VerifyEmailPayload struct {
-	VerificationCode string `json:"verification_code" binding:"required"`
+	VerificationCode string `json:"code" binding:"required"`
 }
 
 func VerifyEmail(c *gin.Context) {
@@ -26,15 +26,16 @@ func VerifyEmail(c *gin.Context) {
 		Otp: payload.VerificationCode,
 	}
 
+	// This will throw an error if TTL condition check fails
 	result, err := authModel.DeleteOtp(deleteOtpArgs)
 	if err != nil {
 		log.Println(err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify email"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "Verification code is invalid or expired"})
 		return
 	}
 
 	if result == (authModel.DeleteOtpResult{}) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Verification code is invalid or expired"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "Verification code is invalid or expired"})
 		return
 	}
 

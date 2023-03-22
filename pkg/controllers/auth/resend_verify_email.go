@@ -1,6 +1,7 @@
 package authController
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -32,15 +33,14 @@ func ResendEmail(c *gin.Context) {
 	user, err := userModel.FetchUserByEmail(fetchUserByEmailArgs)
 	if err != nil {
 		log.Println(err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch user"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "Failed to fetch user"})
 		return
 	}
 
 	if user == (userModel.FetchUserByEmailResult{}) {
-		// User does not exist
-		// Return status ok since we don't want to communicate that the user doesn't exist
-		log.Printf("Cannot resend email verification because '%s' does not exist", email)
-		c.Status(http.StatusOK)
+		errorMessage := fmt.Sprintf("Cannot resend email verification because '%s' does not exist", email)
+		log.Println(errorMessage)
+		c.JSON(http.StatusNotFound, gin.H{"error": errorMessage})
 		return
 	}
 
@@ -56,7 +56,7 @@ func ResendEmail(c *gin.Context) {
 	otp, err := utils.GenerateOtp(generateOtpArgs)
 	if err != nil {
 		log.Println(err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate one-time password"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate one-time verification code"})
 		return
 	}
 
